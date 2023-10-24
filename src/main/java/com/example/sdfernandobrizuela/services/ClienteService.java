@@ -2,8 +2,10 @@ package com.example.sdfernandobrizuela.services;
 
 import com.example.sdfernandobrizuela.beans.ClienteBean;
 import com.example.sdfernandobrizuela.dtos.ClienteDto;
+import com.example.sdfernandobrizuela.interfaces.IBean;
 import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.repositories.IClienteRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,16 +20,12 @@ public class ClienteService implements IService<ClienteDto> {
     @Autowired
     IClienteRepository clienteRepository;
 
+    ModelMapper modelMapper = new ModelMapper();
+
     @Override
     public ClienteDto getById(Integer id) {
         ClienteBean cliente = clienteRepository.findById(id).get();
-        return new ClienteDto(
-                cliente.getId(),
-                cliente.getNombre(),
-                cliente.getRuc(),
-                cliente.getCedula(),
-                cliente.getTelefono(),
-                cliente.getEmail());
+        return toDto(cliente);
     }
 
     @Override
@@ -36,13 +34,7 @@ public class ClienteService implements IService<ClienteDto> {
         List<ClienteDto> clientesDto = new ArrayList<>();
 
         clientes.forEach(cliente ->
-                clientesDto.add(new ClienteDto(
-                        cliente.getId(),
-                        cliente.getNombre(),
-                        cliente.getRuc(),
-                        cliente.getCedula(),
-                        cliente.getTelefono(),
-                        cliente.getEmail()))
+                clientesDto.add(toDto(cliente))
         );
         return clientesDto;
     }
@@ -59,13 +51,7 @@ public class ClienteService implements IService<ClienteDto> {
 
         clienteRepository.save(cliente);
 
-        return new ClienteDto(
-                cliente.getId(),
-                cliente.getNombre(),
-                cliente.getRuc(),
-                cliente.getCedula(),
-                cliente.getTelefono(),
-                cliente.getEmail());
+        return toDto(cliente);
     }
 
     @Override
@@ -77,4 +63,9 @@ public class ClienteService implements IService<ClienteDto> {
             return false;
         }
     }
+
+    public ClienteDto toDto(IBean clienteBean){
+        return modelMapper.map(clienteBean, ClienteDto.class);
+    }
+
 }

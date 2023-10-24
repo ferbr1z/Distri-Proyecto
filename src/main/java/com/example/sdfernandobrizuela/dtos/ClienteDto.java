@@ -9,15 +9,6 @@ public class ClienteDto extends AbstractDto {
     private String telefono;
     private String email;
 
-    public ClienteDto(Integer id, String nombre, String ruc, String cedula, String telefono, String email) {
-        super.setId(id);
-        this.nombre = nombre;
-        this.ruc=ruc;
-        this.cedula = cedula;
-        this.telefono = telefono;
-        this.email = email;
-    }
-
 
     public String getNombre() {
         return nombre;

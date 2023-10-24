@@ -10,4 +10,5 @@ public interface IService<T extends AbstractDto> {
     public List<T> getAll(Pageable pag);
     public T update(Integer id, T t);
     public boolean delete(Integer id);
+    public T toDto(IBean bean);
 }
