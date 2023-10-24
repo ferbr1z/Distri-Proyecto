@@ -1,15 +1,18 @@
 package com.example.sdfernandobrizuela.beans;
 
 import com.example.sdfernandobrizuela.abstracts.AbstractBean;
+import com.example.sdfernandobrizuela.interfaces.IClienteBean;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "cliente")
-public class ClienteBean extends AbstractBean {
+public class ClienteBean extends AbstractBean implements IClienteBean {
     @Column
     private String nombre;
+    @Column
+    private String ruc;
     @Column
     private String cedula;
     @Column
@@ -25,6 +28,12 @@ public class ClienteBean extends AbstractBean {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+    public String getRuc() {
+        return ruc;
+    }
+    public void setRuc(String ruc) {
+        this.ruc = ruc;
     }
 
     public String getCedula() {

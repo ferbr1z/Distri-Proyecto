@@ -24,6 +24,7 @@ public class ClienteService implements IService<ClienteDto> {
         return new ClienteDto(
                 cliente.getId(),
                 cliente.getNombre(),
+                cliente.getRuc(),
                 cliente.getCedula(),
                 cliente.getTelefono(),
                 cliente.getEmail());
@@ -38,6 +39,7 @@ public class ClienteService implements IService<ClienteDto> {
                 clientesDto.add(new ClienteDto(
                         cliente.getId(),
                         cliente.getNombre(),
+                        cliente.getRuc(),
                         cliente.getCedula(),
                         cliente.getTelefono(),
                         cliente.getEmail()))
@@ -49,14 +51,18 @@ public class ClienteService implements IService<ClienteDto> {
     public ClienteDto update(Integer id, ClienteDto clienteBean) {
         ClienteBean cliente = clienteRepository.findById(id).get();
 
-        cliente.setCedula(clienteBean.getCedula());
-        cliente.setNombre(clienteBean.getNombre());
-        cliente.setEmail(clienteBean.getEmail());
-        cliente.setTelefono(clienteBean.getTelefono());
+        if(clienteBean.getCedula() != null) cliente.setCedula(clienteBean.getCedula());
+        if(clienteBean.getNombre() != null) cliente.setNombre(clienteBean.getNombre());
+        if(clienteBean.getRuc() != null) cliente.setRuc(clienteBean.getRuc());
+        if(clienteBean.getEmail() != null) cliente.setEmail(clienteBean.getEmail());
+        if(clienteBean.getTelefono() != null) cliente.setTelefono(clienteBean.getTelefono());
+
+        clienteRepository.save(cliente);
 
         return new ClienteDto(
                 cliente.getId(),
                 cliente.getNombre(),
+                cliente.getRuc(),
                 cliente.getCedula(),
                 cliente.getTelefono(),
                 cliente.getEmail());

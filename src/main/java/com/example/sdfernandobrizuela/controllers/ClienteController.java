@@ -33,7 +33,7 @@ public class ClienteController implements IController<ClienteDto> {
 
     @Override
     @PutMapping("/{id}")
-    public ClienteDto update(@PathVariable Integer id, ClienteDto clienteDto) {
+    public ClienteDto update(@PathVariable Integer id,@RequestBody ClienteDto clienteDto) {
         return clienteService.update(id,clienteDto);
     }
 
