@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Pageable;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/clientes")
@@ -19,8 +20,14 @@ public class ClienteController implements IController<ClienteDto> {
     IService<ClienteDto> clienteService;
 
     @Override
+    @PostMapping
+    public ClienteDto create(@RequestBody ClienteDto clienteDto) {
+        return clienteService.create(clienteDto);
+    }
+
+    @Override
     @GetMapping("/{id}")
-    public ClienteDto getById(@PathVariable Integer id) {
+    public Optional<ClienteDto> getById(@PathVariable Integer id) {
         return clienteService.getById(id);
     }
 
@@ -33,8 +40,8 @@ public class ClienteController implements IController<ClienteDto> {
 
     @Override
     @PutMapping("/{id}")
-    public ClienteDto update(@PathVariable Integer id,@RequestBody ClienteDto clienteDto) {
-        return clienteService.update(id,clienteDto);
+    public Optional<ClienteDto> update(@PathVariable Integer id, @RequestBody ClienteDto clienteDto) {
+        return clienteService.update(id, clienteDto);
     }
 
     @Override

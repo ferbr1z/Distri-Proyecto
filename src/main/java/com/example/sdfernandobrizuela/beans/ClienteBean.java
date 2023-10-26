@@ -8,17 +8,11 @@ import lombok.Data;
 @Data
 @Table(name = "clientes")
 public class ClienteBean extends AbstractBean {
+
     @Column
     private String nombre;
     @Column
     private String ruc;
     @Column
     private String cedula;
-    @Column
-    private String telefono;
-    @Column
-    private String email;
-//    @OneToOne
-//    private ClienteDetalleBean detalleBean;
-
 }

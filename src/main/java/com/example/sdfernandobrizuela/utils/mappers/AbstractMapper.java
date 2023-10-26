@@ -1,0 +1,8 @@
+package com.example.sdfernandobrizuela.utils.mappers;
+
+import com.example.sdfernandobrizuela.abstracts.AbstractBean;
+import com.example.sdfernandobrizuela.abstracts.AbstractDto;
+import com.example.sdfernandobrizuela.interfaces.IMapper;
+
+public abstract class AbstractMapper<T extends AbstractBean, K extends  AbstractDto> implements IMapper<T, K> {
+}

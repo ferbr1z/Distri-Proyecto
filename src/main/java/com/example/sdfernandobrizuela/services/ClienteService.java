@@ -1,31 +1,51 @@
 package com.example.sdfernandobrizuela.services;
 
 import com.example.sdfernandobrizuela.beans.ClienteBean;
+import com.example.sdfernandobrizuela.beans.ClienteDetalleBean;
+import com.example.sdfernandobrizuela.dtos.ClienteDetalleDto;
 import com.example.sdfernandobrizuela.dtos.ClienteDto;
-import com.example.sdfernandobrizuela.interfaces.IBean;
+import com.example.sdfernandobrizuela.dtos.ClienteWithDetailDto;
 import com.example.sdfernandobrizuela.interfaces.IService;
+import com.example.sdfernandobrizuela.repositories.IClienteDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IClienteRepository;
-import org.modelmapper.ModelMapper;
+import com.example.sdfernandobrizuela.utils.mappers.ClienteDetalleMapper;
+import com.example.sdfernandobrizuela.utils.mappers.ClienteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Pageable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class ClienteService implements IService<ClienteDto> {
 
     @Autowired
     IClienteRepository clienteRepository;
+    @Autowired
+    IClienteDetalleRepository clienteDetalleRepository;
 
-    ModelMapper modelMapper = new ModelMapper();
+    private ClienteMapper clienteMapper = new ClienteMapper();
+    private ClienteDetalleMapper clienteDetalleMapper = new ClienteDetalleMapper();
 
     @Override
-    public ClienteDto getById(Integer id) {
-        ClienteBean cliente = clienteRepository.findById(id).get();
-        return toDto(cliente);
+    public ClienteDto create(ClienteDto clienteDto) {
+        ClienteBean cliente = clienteMapper.toBean(clienteDto);
+        return clienteMapper.toDto(clienteRepository.save(cliente));
+    }
+
+    @Override
+    public Optional<ClienteDto> getById(Integer id) {
+        Optional<ClienteBean> cliente = clienteRepository.findById(id);
+        if(cliente.isPresent()){
+            ClienteWithDetailDto clienteWithDetailDto = clienteMapper.toClienteWithDetailDto(cliente.get());
+            ClienteDetalleBean detalleBean = clienteDetalleRepository.findByClienteId(cliente.get().getId());
+            clienteWithDetailDto.setClienteDetalle((clienteDetalleMapper.toDto(detalleBean)));
+            return Optional.of(clienteWithDetailDto);
+        }else{
+            throw null;
+        }
     }
 
     @Override
@@ -34,24 +54,25 @@ public class ClienteService implements IService<ClienteDto> {
         List<ClienteDto> clientesDto = new ArrayList<>();
 
         clientes.forEach(cliente ->
-                clientesDto.add(toDto(cliente))
+                clientesDto.add(clienteMapper.toDto(cliente))
         );
         return clientesDto;
     }
 
     @Override
-    public ClienteDto update(Integer id, ClienteDto clienteBean) {
-        ClienteBean cliente = clienteRepository.findById(id).get();
+    public Optional<ClienteDto> update(Integer id, ClienteDto clienteDto) {
+        Optional<ClienteBean> clienteOp = clienteRepository.findById(id);
 
-        if(clienteBean.getCedula() != null) cliente.setCedula(clienteBean.getCedula());
-        if(clienteBean.getNombre() != null) cliente.setNombre(clienteBean.getNombre());
-        if(clienteBean.getRuc() != null) cliente.setRuc(clienteBean.getRuc());
-        if(clienteBean.getEmail() != null) cliente.setEmail(clienteBean.getEmail());
-        if(clienteBean.getTelefono() != null) cliente.setTelefono(clienteBean.getTelefono());
 
-        clienteRepository.save(cliente);
+        if(clienteOp.isPresent()){
+            if(clienteDto.getNombre() != null) clienteOp.get().setNombre(clienteDto.getNombre());
+            if(clienteDto.getRuc() != null) clienteOp.get().setRuc(clienteDto.getRuc());
+            clienteRepository.save(clienteOp.get());
+            return Optional.ofNullable(clienteMapper.toDto(clienteOp.get()));
+        }
 
-        return toDto(cliente);
+        return null;
+
     }
 
     @Override
@@ -64,8 +85,5 @@ public class ClienteService implements IService<ClienteDto> {
         }
     }
 
-    public ClienteDto toDto(IBean clienteBean){
-        return modelMapper.map(clienteBean, ClienteDto.class);
-    }
 
 }
