@@ -4,9 +4,8 @@ import com.example.sdfernandobrizuela.abstracts.AbstractDto;
 import lombok.Data;
 
 @Data
-public class ClienteDetalleDto extends AbstractDto {
-    private String email;
-    private String telefono;
+public class ProveedorDetalleDto extends AbstractDto {
     private String direccion;
-    private ClienteDto cliente;
+    private String telefono;
+    private String email;
 }

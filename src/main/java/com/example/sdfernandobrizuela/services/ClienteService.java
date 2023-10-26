@@ -2,14 +2,13 @@ package com.example.sdfernandobrizuela.services;
 
 import com.example.sdfernandobrizuela.beans.ClienteBean;
 import com.example.sdfernandobrizuela.beans.ClienteDetalleBean;
-import com.example.sdfernandobrizuela.dtos.ClienteDetalleDto;
 import com.example.sdfernandobrizuela.dtos.ClienteDto;
-import com.example.sdfernandobrizuela.dtos.ClienteWithDetailDto;
+import com.example.sdfernandobrizuela.dtos.ClienteWithDetalleDto;
 import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.repositories.IClienteDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IClienteRepository;
-import com.example.sdfernandobrizuela.utils.mappers.ClienteDetalleMapper;
-import com.example.sdfernandobrizuela.utils.mappers.ClienteMapper;
+import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteDetalleMapper;
+import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,12 +38,13 @@ public class ClienteService implements IService<ClienteDto> {
     public Optional<ClienteDto> getById(Integer id) {
         Optional<ClienteBean> cliente = clienteRepository.findById(id);
         if(cliente.isPresent()){
-            ClienteWithDetailDto clienteWithDetailDto = clienteMapper.toClienteWithDetailDto(cliente.get());
+            ClienteWithDetalleDto clienteWithDetalleDto = clienteMapper.toClienteWithDetalleDto(cliente.get());
+            // Se obtiene el detalle y se lo asigna al dto
             ClienteDetalleBean detalleBean = clienteDetalleRepository.findByClienteId(cliente.get().getId());
-            clienteWithDetailDto.setClienteDetalle((clienteDetalleMapper.toDto(detalleBean)));
-            return Optional.of(clienteWithDetailDto);
+            clienteWithDetalleDto.setDetalle((clienteDetalleMapper.toDto(detalleBean)));
+            return Optional.of(clienteWithDetalleDto);
         }else{
-            throw null;
+            return Optional.empty();
         }
     }
 
@@ -67,6 +67,7 @@ public class ClienteService implements IService<ClienteDto> {
         if(clienteOp.isPresent()){
             if(clienteDto.getNombre() != null) clienteOp.get().setNombre(clienteDto.getNombre());
             if(clienteDto.getRuc() != null) clienteOp.get().setRuc(clienteDto.getRuc());
+            if(clienteDto.getCedula() != null) clienteOp.get().setCedula(clienteDto.getCedula());
             clienteRepository.save(clienteOp.get());
             return Optional.ofNullable(clienteMapper.toDto(clienteOp.get()));
         }

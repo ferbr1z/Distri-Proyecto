@@ -7,7 +7,7 @@ import com.example.sdfernandobrizuela.dtos.ClienteDetalleWithClienteDto;
 import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.repositories.IClienteDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IClienteRepository;
-import com.example.sdfernandobrizuela.utils.mappers.ClienteDetalleMapper;
+import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteDetalleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,29 +22,28 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     private IClienteDetalleRepository clienteDetalleRepository;
     @Autowired
     private IClienteRepository clienteRepository;
-//    private ModelMapper modelMapper = new ModelMapper();
 
     private ClienteDetalleMapper clienteDetalleMapper = new ClienteDetalleMapper();
 
     @Override
     public ClienteDetalleDto create(ClienteDetalleDto clienteDetalleDto) {
-        ClienteDetalleWithClienteDto clienteDetalleWithClienteDto = (ClienteDetalleWithClienteDto) clienteDetalleDto;
+
         ClienteDetalleBean clienteDetalleBean = new ClienteDetalleBean();
-        ClienteBean clienteBean = clienteRepository.getById(clienteDetalleWithClienteDto.getCliente().getId());
+        ClienteBean clienteBean = clienteRepository.getById(clienteDetalleDto.getCliente().getId());
 
         if(clienteBean!=null){
             clienteDetalleBean.setCliente(clienteBean);
         } else {
             ClienteBean nuevoCliente = new ClienteBean();
-            nuevoCliente.setNombre(clienteDetalleWithClienteDto.getCliente().getNombre());
-            nuevoCliente.setRuc(clienteDetalleWithClienteDto.getCliente().getRuc());
-            nuevoCliente.setCedula(clienteDetalleWithClienteDto.getCliente().getCedula());
+            nuevoCliente.setNombre(clienteDetalleDto.getCliente().getNombre());
+            nuevoCliente.setRuc(clienteDetalleDto.getCliente().getRuc());
+            nuevoCliente.setCedula(clienteDetalleDto.getCliente().getCedula());
             clienteDetalleBean.setCliente(clienteRepository.save(nuevoCliente));
         }
 
-        clienteDetalleBean.setDireccion(clienteDetalleWithClienteDto.getDireccion());
-        clienteDetalleBean.setEmail(clienteDetalleWithClienteDto.getEmail());
-        clienteDetalleBean.setTelefono(clienteDetalleWithClienteDto.getTelefono());
+        clienteDetalleBean.setDireccion(clienteDetalleDto.getDireccion());
+        clienteDetalleBean.setEmail(clienteDetalleDto.getEmail());
+        clienteDetalleBean.setTelefono(clienteDetalleDto.getTelefono());
 
         return clienteDetalleMapper.toDto(clienteDetalleRepository.save(clienteDetalleBean));
     }
@@ -52,7 +51,7 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     @Override
     public Optional<ClienteDetalleDto> getById(Integer id) {
         ClienteDetalleBean clienteDetalleBean = clienteDetalleRepository.getById(id);
-        return Optional.of(clienteDetalleMapper.toClienteDetalleDto(clienteDetalleBean));
+        return Optional.of(clienteDetalleMapper.toDetalleWithClienteDto(clienteDetalleBean));
     }
 
     public Optional<ClienteDetalleDto> getByUserId(Integer id){

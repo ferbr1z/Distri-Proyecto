@@ -1,13 +1,13 @@
-package com.example.sdfernandobrizuela.utils.mappers;
+package com.example.sdfernandobrizuela.utils.mappers.clienteMapper;
 
 import com.example.sdfernandobrizuela.beans.ClienteDetalleBean;
 import com.example.sdfernandobrizuela.dtos.ClienteDetalleDto;
 import com.example.sdfernandobrizuela.dtos.ClienteDetalleWithClienteDto;
 import com.example.sdfernandobrizuela.dtos.ClienteDto;
-import org.modelmapper.ModelMapper;
+import com.example.sdfernandobrizuela.utils.mappers.AbstractMapper;
 
 public class ClienteDetalleMapper extends AbstractMapper<ClienteDetalleBean, ClienteDetalleDto> {
-    private ModelMapper modelMapper = new ModelMapper();
+
     @Override
     public ClienteDetalleBean toBean(ClienteDetalleDto dto) {
         return modelMapper.map(dto, ClienteDetalleBean.class);
@@ -18,7 +18,7 @@ public class ClienteDetalleMapper extends AbstractMapper<ClienteDetalleBean, Cli
         return modelMapper.map(detalleBean, ClienteDetalleDto.class);
     }
 
-    public ClienteDetalleWithClienteDto toClienteDetalleDto(ClienteDetalleBean bean){
+    public ClienteDetalleWithClienteDto toDetalleWithClienteDto(ClienteDetalleBean bean){
         ClienteDetalleBean detalleBean = (ClienteDetalleBean) bean;
         ClienteDto clienteDto = modelMapper.map(detalleBean.getCliente(), ClienteDto.class);
         ClienteDetalleWithClienteDto detalleDto = modelMapper.map(detalleBean, ClienteDetalleWithClienteDto.class);
