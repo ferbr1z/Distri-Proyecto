@@ -9,6 +9,7 @@ import com.example.sdfernandobrizuela.repositories.IClienteRepository;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteDetalleMapper;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Pageable;
@@ -52,7 +53,7 @@ public class ClienteService implements IService<ClienteDto> {
 
     @Override
     public List<ClienteDto> getAll(Pageable pag) {
-        List<ClienteBean> clientes =clienteRepository.findAll();
+        Page<ClienteBean> clientes =  clienteRepository.findAll(pag);
         List<ClienteDto> clientesDto = new ArrayList<>();
 
         clientes.forEach(cliente ->

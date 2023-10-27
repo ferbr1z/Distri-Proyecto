@@ -8,6 +8,7 @@ import com.example.sdfernandobrizuela.repositories.IProveedorDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IProveedorRepository;
 import com.example.sdfernandobrizuela.utils.mappers.proveedorMapper.ProveedorDetalleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +48,7 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
 
     @Override
     public List<ProveedorDetalleDto> getAll(Pageable pag) {
-        List<ProveedorDetalleBean> proveedorDetallesBean = proveedorDetalleRepository.findAll();
+        Page<ProveedorDetalleBean> proveedorDetallesBean = proveedorDetalleRepository.findAll(pag);
         List<ProveedorDetalleDto> proveedoresDetallesDto = new ArrayList<>();
 
         proveedorDetallesBean.forEach(detalle ->
