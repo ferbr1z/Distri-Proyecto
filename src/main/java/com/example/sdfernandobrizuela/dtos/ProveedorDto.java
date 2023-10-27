@@ -7,4 +7,6 @@ import lombok.Data;
 public class ProveedorDto extends AbstractDto {
     private String nombre;
     private String ruc;
+    private Integer proveedorDetalleId;
+
 }

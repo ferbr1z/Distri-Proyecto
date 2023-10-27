@@ -2,7 +2,6 @@ package com.example.sdfernandobrizuela.services;
 
 import com.example.sdfernandobrizuela.beans.ProveedorBean;
 import com.example.sdfernandobrizuela.beans.ProveedorDetalleBean;
-import com.example.sdfernandobrizuela.dtos.ProveedorDetalleWithProveedorDto;
 import com.example.sdfernandobrizuela.dtos.ProveedorDetalleDto;
 import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.repositories.IProveedorDetalleRepository;
@@ -26,7 +25,18 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
 
     @Override
     public ProveedorDetalleDto create(ProveedorDetalleDto proveedorDetalleDto) {
-        return (ProveedorDetalleWithProveedorDto) proveedorDetalleDto;
+        ProveedorDetalleBean proveedorDetalleBean = new ProveedorDetalleBean();
+        ProveedorBean proveedorBean = proveedorRepository.getById(proveedorDetalleDto.getProveedorId());
+
+        if(proveedorBean!=null){
+            proveedorDetalleBean.setProveedor(proveedorBean);
+        }
+
+        proveedorDetalleBean.setDireccion(proveedorDetalleDto.getDireccion());
+        proveedorDetalleBean.setEmail(proveedorDetalleDto.getEmail());
+        proveedorDetalleBean.setTelefono(proveedorDetalleDto.getTelefono());
+
+        return proveedorDetalleMapper.toDto(proveedorDetalleRepository.save(proveedorDetalleBean));
     }
 
     @Override

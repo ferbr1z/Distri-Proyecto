@@ -8,5 +8,5 @@ public class ClienteDetalleDto extends AbstractDto {
     private String email;
     private String telefono;
     private String direccion;
-    private ClienteDto cliente;
+    private Integer clienteId;
 }

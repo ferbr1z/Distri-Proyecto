@@ -3,7 +3,6 @@ package com.example.sdfernandobrizuela.services;
 import com.example.sdfernandobrizuela.beans.ClienteBean;
 import com.example.sdfernandobrizuela.beans.ClienteDetalleBean;
 import com.example.sdfernandobrizuela.dtos.ClienteDto;
-import com.example.sdfernandobrizuela.dtos.ClienteWithDetalleDto;
 import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.repositories.IClienteDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IClienteRepository;
@@ -38,11 +37,14 @@ public class ClienteService implements IService<ClienteDto> {
     public Optional<ClienteDto> getById(Integer id) {
         Optional<ClienteBean> cliente = clienteRepository.findById(id);
         if(cliente.isPresent()){
-            ClienteWithDetalleDto clienteWithDetalleDto = clienteMapper.toClienteWithDetalleDto(cliente.get());
+
+            ClienteDto clienteDto = clienteMapper.toDto(cliente.get());
             // Se obtiene el detalle y se lo asigna al dto
             ClienteDetalleBean detalleBean = clienteDetalleRepository.findByClienteId(cliente.get().getId());
-            clienteWithDetalleDto.setDetalle((clienteDetalleMapper.toDto(detalleBean)));
-            return Optional.of(clienteWithDetalleDto);
+
+            // si hay un detalle, tambien se envia
+            if(detalleBean!=null) clienteDto.setClienteDetalleId((detalleBean.getId()));
+            return Optional.of(clienteDto);
         }else{
             return Optional.empty();
         }
@@ -54,7 +56,15 @@ public class ClienteService implements IService<ClienteDto> {
         List<ClienteDto> clientesDto = new ArrayList<>();
 
         clientes.forEach(cliente ->
-                clientesDto.add(clienteMapper.toDto(cliente))
+                {
+                    ClienteDto clienteDto = clienteMapper.toDto(cliente);
+
+                    ClienteDetalleBean detalleBean = clienteDetalleRepository.findByClienteId(cliente.getId());
+                    if(detalleBean!=null) clienteDto.setClienteDetalleId((detalleBean.getId()));
+
+                    clientesDto.add(clienteDto);
+                }
+
         );
         return clientesDto;
     }

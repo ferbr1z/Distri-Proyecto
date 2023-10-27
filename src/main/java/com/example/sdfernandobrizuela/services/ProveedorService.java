@@ -2,9 +2,7 @@ package com.example.sdfernandobrizuela.services;
 
 import com.example.sdfernandobrizuela.beans.ProveedorBean;
 import com.example.sdfernandobrizuela.beans.ProveedorDetalleBean;
-import com.example.sdfernandobrizuela.dtos.ProveedorDetalleDto;
 import com.example.sdfernandobrizuela.dtos.ProveedorDto;
-import com.example.sdfernandobrizuela.dtos.ProveedorWithDetalleDto;
 import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.repositories.IProveedorDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IProveedorRepository;
@@ -36,13 +34,13 @@ public class ProveedorService implements IService<ProveedorDto> {
     public Optional<ProveedorDto> getById(Integer id) {
         Optional<ProveedorBean> proveedor = proveedorRepository.findById(id);
         if(proveedor.isPresent()){
-            ProveedorWithDetalleDto proveedorWithDetalleDto = proveedorMapper.toProveedorWithDetalleDto(proveedor.get());
+            ProveedorDto proveedorDto = proveedorMapper.toDto(proveedor.get());
             // Se obtiene el detalle y se lo asigna al dto
             ProveedorDetalleBean detalleBean = proveedorDetalleRepository.findByProveedorId(proveedor.get().getId());
 
-            if(detalleBean!=null)  proveedorWithDetalleDto.setProveedorDetalle(proveedorDetalleMapper.toDto(detalleBean));
+            if(detalleBean!=null)  proveedorDto.setProveedorDetalleId (detalleBean.getId());
 
-            return Optional.of(proveedorWithDetalleDto);
+            return Optional.of(proveedorDto);
         }
         return Optional.empty();
     }
@@ -53,7 +51,12 @@ public class ProveedorService implements IService<ProveedorDto> {
         List<ProveedorDto> proveedoresDto = new ArrayList<>();
 
         proveedores.forEach(proveedor ->
-                proveedoresDto.add(proveedorMapper.toDto(proveedor))
+                {
+                    ProveedorDto proveedorDto = proveedorMapper.toDto(proveedor);
+                    ProveedorDetalleBean detalleBean = proveedorDetalleRepository.findByProveedorId(proveedor.getId());
+                    if(detalleBean!=null)  proveedorDto.setProveedorDetalleId (detalleBean.getId());
+                    proveedoresDto.add(proveedorDto);
+                }
         );
 
         return proveedoresDto;

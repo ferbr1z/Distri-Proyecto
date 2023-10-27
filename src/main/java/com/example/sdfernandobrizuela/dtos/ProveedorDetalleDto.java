@@ -8,4 +8,5 @@ public class ProveedorDetalleDto extends AbstractDto {
     private String direccion;
     private String telefono;
     private String email;
+    private Integer proveedorId;
 }

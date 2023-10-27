@@ -8,5 +8,5 @@ public class ClienteDto extends AbstractDto {
     private String nombre;
     private String ruc;
     private String cedula;
-    private ClienteDetalleDto detalle;
+    private Integer clienteDetalleId;
 }

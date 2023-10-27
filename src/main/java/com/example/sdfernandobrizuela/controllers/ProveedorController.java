@@ -37,7 +37,7 @@ public class ProveedorController implements IController<ProveedorDto> {
     }
 
     @Override
-    @PutMapping("/pages/{id}")
+    @PutMapping("/{id}")
     public Optional<ProveedorDto> update(@PathVariable Integer id, @RequestBody ProveedorDto proveedorDto) {
         return proveedorService.update(id, proveedorDto);
     }

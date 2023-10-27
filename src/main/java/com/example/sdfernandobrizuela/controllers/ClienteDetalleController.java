@@ -1,7 +1,6 @@
 package com.example.sdfernandobrizuela.controllers;
 
 import com.example.sdfernandobrizuela.dtos.ClienteDetalleDto;
-import com.example.sdfernandobrizuela.dtos.ClienteDetalleWithClienteDto;
 import com.example.sdfernandobrizuela.interfaces.IController;
 import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.utils.Setting;
@@ -22,8 +21,8 @@ public class ClienteDetalleController implements IController<ClienteDetalleDto> 
 
     @Override
     @PostMapping
-    public ClienteDetalleDto create(@RequestBody ClienteDetalleDto clienteDetalleWithClienteDto) {
-        return clienteDetalleService.create(clienteDetalleWithClienteDto);
+    public ClienteDetalleDto create(@RequestBody ClienteDetalleDto clienteDetalleDto) {
+        return clienteDetalleService.create(clienteDetalleDto);
     }
 
     @Override

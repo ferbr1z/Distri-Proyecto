@@ -3,7 +3,6 @@ package com.example.sdfernandobrizuela.services;
 import com.example.sdfernandobrizuela.beans.ClienteBean;
 import com.example.sdfernandobrizuela.beans.ClienteDetalleBean;
 import com.example.sdfernandobrizuela.dtos.ClienteDetalleDto;
-import com.example.sdfernandobrizuela.dtos.ClienteDetalleWithClienteDto;
 import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.repositories.IClienteDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IClienteRepository;
@@ -29,17 +28,18 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     public ClienteDetalleDto create(ClienteDetalleDto clienteDetalleDto) {
 
         ClienteDetalleBean clienteDetalleBean = new ClienteDetalleBean();
-        ClienteBean clienteBean = clienteRepository.getById(clienteDetalleDto.getCliente().getId());
+        ClienteBean clienteBean = clienteRepository.getById(clienteDetalleDto.getClienteId());
 
         if(clienteBean!=null){
             clienteDetalleBean.setCliente(clienteBean);
-        } else {
-            ClienteBean nuevoCliente = new ClienteBean();
-            nuevoCliente.setNombre(clienteDetalleDto.getCliente().getNombre());
-            nuevoCliente.setRuc(clienteDetalleDto.getCliente().getRuc());
-            nuevoCliente.setCedula(clienteDetalleDto.getCliente().getCedula());
-            clienteDetalleBean.setCliente(clienteRepository.save(nuevoCliente));
         }
+//        else {
+//            ClienteBean nuevoCliente = new ClienteBean();
+//            nuevoCliente.setNombre(clienteBean.getNombre());
+//            nuevoCliente.setRuc(clienteBean.getRuc());
+//            nuevoCliente.setCedula(clienteBean.getCedula());
+//            clienteDetalleBean.setCliente(clienteRepository.save(nuevoCliente));
+//        }
 
         clienteDetalleBean.setDireccion(clienteDetalleDto.getDireccion());
         clienteDetalleBean.setEmail(clienteDetalleDto.getEmail());
@@ -51,7 +51,7 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     @Override
     public Optional<ClienteDetalleDto> getById(Integer id) {
         ClienteDetalleBean clienteDetalleBean = clienteDetalleRepository.getById(id);
-        return Optional.of(clienteDetalleMapper.toDetalleWithClienteDto(clienteDetalleBean));
+        return Optional.of(clienteDetalleMapper.toDto(clienteDetalleBean));
     }
 
     public Optional<ClienteDetalleDto> getByUserId(Integer id){
