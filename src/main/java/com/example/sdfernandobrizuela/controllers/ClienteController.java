@@ -6,12 +6,13 @@ import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.utils.Setting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Pageable;
+
 import java.util.List;
-import java.util.Optional;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/clientes")
@@ -22,35 +23,44 @@ public class ClienteController implements IController<ClienteDto> {
 
     @Override
     @PostMapping
-    public ClienteDto create(@RequestBody ClienteDto clienteDto) {
-        return clienteService.create(clienteDto);
+    public ResponseEntity create(@RequestBody ClienteDto clienteDto) {
+        ClienteDto cliente = clienteService.create(clienteDto);
+        return ResponseEntity.ok(cliente);
     }
 
     @Override
     @GetMapping("/{id}")
-    public Optional<ClienteDto> getById(@PathVariable Integer id) {
-        return clienteService.getById(id);
+    public ResponseEntity getById(@PathVariable Integer id) {
+        ClienteDto cliente = clienteService.getById(id);
+        if (cliente != null) {
+            return ResponseEntity.ok(cliente);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado el cliente con id: " + id);
     }
 
     @Override
     @GetMapping("/pages/{page_num}")
-    public List<ClienteDto> getAll(@PathVariable(value = "page_num") Integer page){
+    public List<ClienteDto> getAll(@PathVariable(value = "page_num") Integer page) {
         Pageable pag = PageRequest.of(page, Setting.PAGE_SIZE);
         return clienteService.getAll(pag);
     }
 
     @Override
     @PutMapping("/{id}")
-    public Optional<ClienteDto> update(@PathVariable Integer id, @RequestBody ClienteDto clienteDto) {
-        return clienteService.update(id, clienteDto);
+    public ResponseEntity update(@PathVariable Integer id, @RequestBody ClienteDto clienteDto) {
+        ClienteDto cliente = clienteService.update(id, clienteDto);
+        if (cliente != null) {
+            return ResponseEntity.ok(cliente);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado el cliente con id: " + id);
     }
 
     @Override
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable Integer id) {
-        if(clienteService.delete(id)){
-            return "Se ha eliminado al usuario con id " + id;
+    public ResponseEntity delete(@PathVariable Integer id) {
+        if (clienteService.delete(id)) {
+            return ResponseEntity.ok("Se ha eliminado al usuario con id " + id);
         }
-        return "No se ha podido eliminar al usuario con id " + id;
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado el cliente con id: " + id);
     }
 }

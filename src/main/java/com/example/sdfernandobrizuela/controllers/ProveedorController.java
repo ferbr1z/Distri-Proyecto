@@ -7,10 +7,11 @@ import com.example.sdfernandobrizuela.utils.Setting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/proveedores")
@@ -19,14 +20,18 @@ public class ProveedorController implements IController<ProveedorDto> {
     IService<ProveedorDto> proveedorService;
     @Override
     @PostMapping
-    public ProveedorDto create(@RequestBody ProveedorDto proveedorDto) {
-        return proveedorService.create(proveedorDto);
+    public ResponseEntity create(@RequestBody ProveedorDto proveedorDto) {
+        return ResponseEntity.ok(proveedorService.create(proveedorDto));
     }
 
     @Override
     @GetMapping("/{id}")
-    public Optional<ProveedorDto> getById(@PathVariable Integer id) {
-        return proveedorService.getById(id);
+    public ResponseEntity getById(@PathVariable Integer id) {
+        ProveedorDto proveedorDto = proveedorService.getById(id);
+        if(proveedorDto!=null){
+            return ResponseEntity.ok(proveedorDto);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado el cliente con id: " + id);
     }
 
     @Override
@@ -38,15 +43,21 @@ public class ProveedorController implements IController<ProveedorDto> {
 
     @Override
     @PutMapping("/{id}")
-    public Optional<ProveedorDto> update(@PathVariable Integer id, @RequestBody ProveedorDto proveedorDto) {
-        return proveedorService.update(id, proveedorDto);
+    public ResponseEntity update(@PathVariable Integer id, @RequestBody ProveedorDto proveedorDto) {
+        ProveedorDto proveedor = proveedorService.update(id, proveedorDto);
+        if(proveedor!=null){
+            return ResponseEntity.ok(proveedor);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado el cliente detalle con id " + id);
+
     }
 
     @Override
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable Integer id) {
+    public ResponseEntity delete(@PathVariable Integer id) {
         if(proveedorService.delete(id)){
-            return "Se ha eliminado al usuario con id " + id;
+            return ResponseEntity.ok("Se ha eliminado al usuario con id " + id);
         }
-        return "No se ha podido eliminar al usuario con id " + id;    }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha podido eliminar al usuario con id " + id);
+    }
 }

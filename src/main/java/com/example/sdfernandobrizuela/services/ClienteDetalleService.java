@@ -8,7 +8,6 @@ import com.example.sdfernandobrizuela.repositories.IClienteDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IClienteRepository;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteDetalleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -31,16 +30,9 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
         ClienteDetalleBean clienteDetalleBean = new ClienteDetalleBean();
         ClienteBean clienteBean = clienteRepository.getById(clienteDetalleDto.getClienteId());
 
-        if(clienteBean!=null){
+        if (clienteBean != null) {
             clienteDetalleBean.setCliente(clienteBean);
         }
-//        else {
-//            ClienteBean nuevoCliente = new ClienteBean();
-//            nuevoCliente.setNombre(clienteBean.getNombre());
-//            nuevoCliente.setRuc(clienteBean.getRuc());
-//            nuevoCliente.setCedula(clienteBean.getCedula());
-//            clienteDetalleBean.setCliente(clienteRepository.save(nuevoCliente));
-//        }
 
         clienteDetalleBean.setDireccion(clienteDetalleDto.getDireccion());
         clienteDetalleBean.setEmail(clienteDetalleDto.getEmail());
@@ -50,19 +42,14 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
-    public Optional<ClienteDetalleDto> getById(Integer id) {
-        ClienteDetalleBean clienteDetalleBean = clienteDetalleRepository.getById(id);
-        return Optional.of(clienteDetalleMapper.toDto(clienteDetalleBean));
-    }
-
-    public Optional<ClienteDetalleDto> getByUserId(Integer id){
-        ClienteDetalleBean clienteDetalleBean = clienteDetalleRepository.findByClienteId(id);
-        return Optional.of(clienteDetalleMapper.toDto(clienteDetalleBean));
+    public ClienteDetalleDto getById(Integer id) {
+        Optional<ClienteDetalleBean> clienteDetalleOp = clienteDetalleRepository.findById(id);
+        return clienteDetalleOp.map(clienteDetalleBean -> clienteDetalleMapper.toDto(clienteDetalleBean)).orElse(null);
     }
 
     @Override
     public List<ClienteDetalleDto> getAll(Pageable pag) {
-        Page<ClienteDetalleBean> clienteDetallesBean = clienteDetalleRepository.findAll(pag);
+        List<ClienteDetalleBean> clienteDetallesBean = clienteDetalleRepository.findAll();
         List<ClienteDetalleDto> clientesDetallesDto = new ArrayList<>();
 
         clienteDetallesBean.forEach(detalle ->
@@ -72,24 +59,27 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
-    public Optional<ClienteDetalleDto> update(Integer id, ClienteDetalleDto clienteDetalleWithClienteDto) {
+    public ClienteDetalleDto update(Integer id, ClienteDetalleDto clienteDetalleWithClienteDto) {
         Optional<ClienteDetalleBean> detalleOp = clienteDetalleRepository.findById(id);
-        if(detalleOp.isPresent()){
-            if(!clienteDetalleWithClienteDto.getEmail().isEmpty()) detalleOp.get().setEmail(clienteDetalleWithClienteDto.getEmail());
-            if(!clienteDetalleWithClienteDto.getTelefono().isEmpty()) detalleOp.get().setTelefono(clienteDetalleWithClienteDto.getTelefono());
-            if(!clienteDetalleWithClienteDto.getDireccion().isEmpty()) detalleOp.get().setDireccion(clienteDetalleWithClienteDto.getDireccion());
+        if (detalleOp.isPresent()) {
+            if (!clienteDetalleWithClienteDto.getEmail().isEmpty())
+                detalleOp.get().setEmail(clienteDetalleWithClienteDto.getEmail());
+            if (!clienteDetalleWithClienteDto.getTelefono().isEmpty())
+                detalleOp.get().setTelefono(clienteDetalleWithClienteDto.getTelefono());
+            if (!clienteDetalleWithClienteDto.getDireccion().isEmpty())
+                detalleOp.get().setDireccion(clienteDetalleWithClienteDto.getDireccion());
             clienteDetalleRepository.save(detalleOp.get());
-            return Optional.ofNullable(clienteDetalleMapper.toDto(detalleOp.get()));
+            return clienteDetalleMapper.toDto(detalleOp.get());
         }
         return null;
     }
 
     @Override
     public boolean delete(Integer id) {
-        try{
+        if (clienteRepository.existsById(id)) {
             clienteDetalleRepository.deleteById(id);
             return true;
-        } catch (Exception e){
+        } else {
             return false;
         }
     }

@@ -4,9 +4,12 @@ import com.example.sdfernandobrizuela.dtos.ClienteDetalleDto;
 import com.example.sdfernandobrizuela.interfaces.IController;
 import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.utils.Setting;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,14 +24,18 @@ public class ClienteDetalleController implements IController<ClienteDetalleDto> 
 
     @Override
     @PostMapping
-    public ClienteDetalleDto create(@RequestBody ClienteDetalleDto clienteDetalleDto) {
-        return clienteDetalleService.create(clienteDetalleDto);
+    public ResponseEntity create(@RequestBody ClienteDetalleDto clienteDetalleDto) {
+        return ResponseEntity.ok(clienteDetalleService.create(clienteDetalleDto));
     }
 
     @Override
     @GetMapping("/{id}")
-    public Optional<ClienteDetalleDto> getById(@PathVariable Integer id) {
-        return clienteDetalleService.getById(id);
+    public ResponseEntity getById(@PathVariable Integer id) {
+        ClienteDetalleDto detalleDto = clienteDetalleService.getById(id);
+        if(detalleDto!=null){
+            return ResponseEntity.ok(detalleDto);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado el cliente detalle con id " + id);
     }
 
     @Override
@@ -40,16 +47,20 @@ public class ClienteDetalleController implements IController<ClienteDetalleDto> 
 
     @Override
     @PutMapping("/{id}")
-    public Optional<ClienteDetalleDto> update(@PathVariable Integer id, @RequestBody ClienteDetalleDto clienteDetalleWithClienteDto) {
-        return clienteDetalleService.update(id, clienteDetalleWithClienteDto);
+    public ResponseEntity update(@PathVariable Integer id, @RequestBody ClienteDetalleDto clienteDetalleWithClienteDto) {
+        ClienteDetalleDto detalleDto = clienteDetalleService.update(id, clienteDetalleWithClienteDto);
+        if(detalleDto != null){
+            return ResponseEntity.ok(detalleDto);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado el cliente detalle con id " + id);
     }
 
     @Override
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable Integer id) {
+    public ResponseEntity delete(@PathVariable Integer id) {
         if(clienteDetalleService.delete(id)){
-            return "Se ha borrado el detalle de cliente " + id;
+            return ResponseEntity.ok("Se ha borrado el detalle de cliente " + id);
         }
-        return "No se ha podido borrar el detalle de cliente " + id;
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha podido borrar el detalle de cliente " + id);
     }
 }

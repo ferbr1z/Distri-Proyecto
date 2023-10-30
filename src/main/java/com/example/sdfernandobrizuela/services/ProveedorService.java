@@ -9,7 +9,6 @@ import com.example.sdfernandobrizuela.repositories.IProveedorRepository;
 import com.example.sdfernandobrizuela.utils.mappers.proveedorMapper.ProveedorDetalleMapper;
 import com.example.sdfernandobrizuela.utils.mappers.proveedorMapper.ProveedorMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +31,7 @@ public class ProveedorService implements IService<ProveedorDto> {
     }
 
     @Override
-    public Optional<ProveedorDto> getById(Integer id) {
+    public ProveedorDto getById(Integer id) {
         Optional<ProveedorBean> proveedor = proveedorRepository.findById(id);
         if(proveedor.isPresent()){
             ProveedorDto proveedorDto = proveedorMapper.toDto(proveedor.get());
@@ -41,14 +40,14 @@ public class ProveedorService implements IService<ProveedorDto> {
 
             if(detalleBean!=null)  proveedorDto.setProveedorDetalleId (detalleBean.getId());
 
-            return Optional.of(proveedorDto);
+            return proveedorDto;
         }
-        return Optional.empty();
+        return null;
     }
 
     @Override
     public List<ProveedorDto> getAll(Pageable pag) {
-        Page<ProveedorBean> proveedores = proveedorRepository.findAll(pag);
+        List<ProveedorBean> proveedores = proveedorRepository.findAll();
         List<ProveedorDto> proveedoresDto = new ArrayList<>();
 
         proveedores.forEach(proveedor ->
@@ -64,16 +63,16 @@ public class ProveedorService implements IService<ProveedorDto> {
     }
 
     @Override
-    public Optional<ProveedorDto> update(Integer id, ProveedorDto proveedorDto) {
+    public ProveedorDto update(Integer id, ProveedorDto proveedorDto) {
         Optional<ProveedorBean> proveedorBean = proveedorRepository.findById(id);
         if(proveedorBean.isPresent()){
             if(proveedorDto.getNombre()!=null) proveedorBean.get().setNombre(proveedorDto.getNombre());
             if(proveedorDto.getRuc()!=null) proveedorBean.get().setRuc(proveedorDto.getRuc());
             proveedorRepository.save(proveedorBean.get());
-            return Optional.of(proveedorMapper.toDto(proveedorBean.get()));
+            return proveedorMapper.toDto(proveedorBean.get());
 
         }
-        return Optional.empty();
+        return null;
     }
 
     @Override

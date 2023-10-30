@@ -8,7 +8,6 @@ import com.example.sdfernandobrizuela.repositories.IProveedorDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IProveedorRepository;
 import com.example.sdfernandobrizuela.utils.mappers.proveedorMapper.ProveedorDetalleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,7 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
         ProveedorDetalleBean proveedorDetalleBean = new ProveedorDetalleBean();
         ProveedorBean proveedorBean = proveedorRepository.getById(proveedorDetalleDto.getProveedorId());
 
-        if(proveedorBean!=null){
+        if (proveedorBean != null) {
             proveedorDetalleBean.setProveedor(proveedorBean);
         }
 
@@ -41,14 +40,14 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     }
 
     @Override
-    public Optional<ProveedorDetalleDto> getById(Integer id) {
+    public ProveedorDetalleDto getById(Integer id) {
         ProveedorDetalleBean proveedorDetalleBean = proveedorDetalleRepository.findByProveedorId(id);
-        return Optional.of(proveedorDetalleMapper.toDto(proveedorDetalleBean));
+        return proveedorDetalleMapper.toDto(proveedorDetalleBean);
     }
 
     @Override
     public List<ProveedorDetalleDto> getAll(Pageable pag) {
-        Page<ProveedorDetalleBean> proveedorDetallesBean = proveedorDetalleRepository.findAll(pag);
+        List<ProveedorDetalleBean> proveedorDetallesBean = proveedorDetalleRepository.findAll();
         List<ProveedorDetalleDto> proveedoresDetallesDto = new ArrayList<>();
 
         proveedorDetallesBean.forEach(detalle ->
@@ -58,12 +57,27 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     }
 
     @Override
-    public Optional<ProveedorDetalleDto> update(Integer id, ProveedorDetalleDto proveedorDetalleDto) {
-        return Optional.empty();
+    public ProveedorDetalleDto update(Integer id, ProveedorDetalleDto proveedorDetalleDto) {
+        Optional<ProveedorDetalleBean> detalleOp = proveedorDetalleRepository.findById(id);
+        if (detalleOp.isPresent()) {
+            ProveedorDetalleBean detalleBean = detalleOp.get();
+            if (!proveedorDetalleDto.getDireccion().isEmpty())
+                detalleBean.setDireccion(proveedorDetalleDto.getDireccion());
+            if (!proveedorDetalleDto.getEmail().isEmpty()) detalleBean.setEmail(proveedorDetalleDto.getEmail());
+            if (!proveedorDetalleDto.getTelefono().isEmpty()) detalleBean.setEmail(proveedorDetalleDto.getEmail());
+            proveedorDetalleRepository.save(detalleBean);
+            return proveedorDetalleMapper.toDto(detalleBean);
+        }
+        return null;
     }
 
     @Override
     public boolean delete(Integer id) {
-        return false;
+        if(proveedorDetalleRepository.existsById(id)){
+            proveedorDetalleRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
     }
 }
