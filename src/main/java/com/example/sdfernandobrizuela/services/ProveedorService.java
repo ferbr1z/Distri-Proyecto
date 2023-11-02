@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -48,18 +49,15 @@ public class ProveedorService implements IService<ProveedorDto> {
     @Override
     @Cacheable(cacheNames = "proveedoresList")
     public List<ProveedorDto> getAll(Pageable pag) {
-        List<ProveedorBean> proveedores = proveedorRepository.findAll();
+        Page<ProveedorBean> proveedores = proveedorRepository.findAll(pag);
         List<ProveedorDto> proveedoresDto = new ArrayList<>();
 
         proveedores.forEach(proveedor ->
                 {
                     ProveedorDto proveedorDto = proveedorMapper.toDto(proveedor);
-//                    ProveedorDetalleBean detalleBean = proveedorDetalleRepository.findByProveedorId(proveedor.getId());
-//                    if(detalleBean!=null)  proveedorDto.setProveedorDetalleId (detalleBean.getId());
                     proveedoresDto.add(proveedorDto);
                 }
         );
-
         return proveedoresDto;
     }
 
