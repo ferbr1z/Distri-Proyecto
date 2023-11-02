@@ -9,6 +9,8 @@ import com.example.sdfernandobrizuela.repositories.IClienteRepository;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteDetalleMapper;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Pageable;
@@ -39,7 +41,7 @@ public class ClienteService implements IService<ClienteDto> {
         if (cliente.isPresent()) {
             ClienteDto clienteDto = clienteMapper.toDto(cliente.get()); // Se obtiene el detalle y se lo asigna al dto
             ClienteDetalleBean detalleBean = clienteDetalleRepository.findByClienteId(cliente.get().getId()); // si hay un detalle, tambien se envia
-            if (detalleBean != null) clienteDto.setClienteDetalleId((detalleBean.getId()));
+            if (detalleBean != null) clienteDto.setClienteDetalle(clienteDetalleMapper.toDto(detalleBean));
             return clienteDto;
         } else {
             return null;
@@ -47,14 +49,15 @@ public class ClienteService implements IService<ClienteDto> {
     }
 
     @Override
+    @Cacheable("items")
     public List<ClienteDto> getAll(Pageable pag) {
-        List<ClienteBean> clientes = clienteRepository.findAll();
+        Page<ClienteBean> clientes = clienteRepository.findAll(pag);
         List<ClienteDto> clientesDto = new ArrayList<>();
 
         clientes.forEach(cliente -> {
                     ClienteDto clienteDto = clienteMapper.toDto(cliente);
-                    ClienteDetalleBean detalleBean = clienteDetalleRepository.findByClienteId(cliente.getId());
-                    if (detalleBean != null) clienteDto.setClienteDetalleId((detalleBean.getId()));
+                    ClienteDetalleBean detalleBean = clienteDetalleRepository.findByClienteId(clienteDto.getId()); // si hay un detalle, tambien se envia
+                    if (detalleBean != null) clienteDto.setClienteDetalle(clienteDetalleMapper.toDto(detalleBean));
                     clientesDto.add(clienteDto);
                 }
 

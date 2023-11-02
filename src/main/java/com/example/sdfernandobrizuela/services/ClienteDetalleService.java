@@ -6,8 +6,12 @@ import com.example.sdfernandobrizuela.dtos.ClienteDetalleDto;
 import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.repositories.IClienteDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IClienteRepository;
+import com.example.sdfernandobrizuela.utils.CacheConfig;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteDetalleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +28,13 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
 
     private ClienteDetalleMapper clienteDetalleMapper = new ClienteDetalleMapper();
 
+    private CacheConfig cacheConfig;
+
+    @Autowired
+    public ClienteDetalleService(CacheConfig cacheConfig){
+        this.cacheConfig = cacheConfig;
+    }
+
     @Override
     public ClienteDetalleDto create(ClienteDetalleDto clienteDetalleDto) {
 
@@ -38,16 +49,19 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
         clienteDetalleBean.setEmail(clienteDetalleDto.getEmail());
         clienteDetalleBean.setTelefono(clienteDetalleDto.getTelefono());
 
-        return clienteDetalleMapper.toDto(clienteDetalleRepository.save(clienteDetalleBean));
+        ClienteDetalleDto nuevoCliente = clienteDetalleMapper.toDto(clienteDetalleRepository.save(clienteDetalleBean));
+        return nuevoCliente;
     }
 
     @Override
+    @Cacheable(cacheNames = "clienteDetalle", key = "#id")
     public ClienteDetalleDto getById(Integer id) {
         Optional<ClienteDetalleBean> clienteDetalleOp = clienteDetalleRepository.findById(id);
         return clienteDetalleOp.map(clienteDetalleBean -> clienteDetalleMapper.toDto(clienteDetalleBean)).orElse(null);
     }
 
     @Override
+    @Cacheable(cacheNames = "clientesDetalles")
     public List<ClienteDetalleDto> getAll(Pageable pag) {
         List<ClienteDetalleBean> clienteDetallesBean = clienteDetalleRepository.findAll();
         List<ClienteDetalleDto> clientesDetallesDto = new ArrayList<>();
@@ -59,14 +73,15 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
+    @CachePut(cacheNames = "clienteDetalle", key = "#id")
     public ClienteDetalleDto update(Integer id, ClienteDetalleDto clienteDetalleWithClienteDto) {
         Optional<ClienteDetalleBean> detalleOp = clienteDetalleRepository.findById(id);
         if (detalleOp.isPresent()) {
-            if (!clienteDetalleWithClienteDto.getEmail().isEmpty())
+            if (clienteDetalleWithClienteDto.getEmail() != null)
                 detalleOp.get().setEmail(clienteDetalleWithClienteDto.getEmail());
-            if (!clienteDetalleWithClienteDto.getTelefono().isEmpty())
+            if (clienteDetalleWithClienteDto.getTelefono() != null)
                 detalleOp.get().setTelefono(clienteDetalleWithClienteDto.getTelefono());
-            if (!clienteDetalleWithClienteDto.getDireccion().isEmpty())
+            if (clienteDetalleWithClienteDto.getDireccion() != null)
                 detalleOp.get().setDireccion(clienteDetalleWithClienteDto.getDireccion());
             clienteDetalleRepository.save(detalleOp.get());
             return clienteDetalleMapper.toDto(detalleOp.get());
@@ -75,8 +90,9 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
+    @CacheEvict(cacheNames = "clienteDetalle", key="#id")
     public boolean delete(Integer id) {
-        if (clienteRepository.existsById(id)) {
+        if (clienteDetalleRepository.existsById(id)) {
             clienteDetalleRepository.deleteById(id);
             return true;
         } else {

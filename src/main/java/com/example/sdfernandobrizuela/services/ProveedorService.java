@@ -35,10 +35,6 @@ public class ProveedorService implements IService<ProveedorDto> {
         Optional<ProveedorBean> proveedor = proveedorRepository.findById(id);
         if(proveedor.isPresent()){
             ProveedorDto proveedorDto = proveedorMapper.toDto(proveedor.get());
-            // Se obtiene el detalle y se lo asigna al dto
-            ProveedorDetalleBean detalleBean = proveedorDetalleRepository.findByProveedorId(proveedor.get().getId());
-
-            if(detalleBean!=null)  proveedorDto.setProveedorDetalleId (detalleBean.getId());
 
             return proveedorDto;
         }
@@ -53,8 +49,8 @@ public class ProveedorService implements IService<ProveedorDto> {
         proveedores.forEach(proveedor ->
                 {
                     ProveedorDto proveedorDto = proveedorMapper.toDto(proveedor);
-                    ProveedorDetalleBean detalleBean = proveedorDetalleRepository.findByProveedorId(proveedor.getId());
-                    if(detalleBean!=null)  proveedorDto.setProveedorDetalleId (detalleBean.getId());
+//                    ProveedorDetalleBean detalleBean = proveedorDetalleRepository.findByProveedorId(proveedor.getId());
+//                    if(detalleBean!=null)  proveedorDto.setProveedorDetalleId (detalleBean.getId());
                     proveedoresDto.add(proveedorDto);
                 }
         );

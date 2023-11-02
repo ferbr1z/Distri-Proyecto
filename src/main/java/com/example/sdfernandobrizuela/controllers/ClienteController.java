@@ -41,7 +41,7 @@ public class ClienteController implements IController<ClienteDto> {
     @Override
     @GetMapping("/pages/{page_num}")
     public List<ClienteDto> getAll(@PathVariable(value = "page_num") Integer page) {
-        Pageable pag = PageRequest.of(page, Setting.PAGE_SIZE);
+        Pageable pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
         return clienteService.getAll(pag);
     }
 
