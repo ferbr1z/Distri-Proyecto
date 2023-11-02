@@ -54,14 +54,14 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
-    @Cacheable(cacheNames = "clienteDetalle", key = "#id")
+    @Cacheable(cacheNames = "clienteDetalleItem", key = "#id", unless = "#result==null")
     public ClienteDetalleDto getById(Integer id) {
         Optional<ClienteDetalleBean> clienteDetalleOp = clienteDetalleRepository.findById(id);
         return clienteDetalleOp.map(clienteDetalleBean -> clienteDetalleMapper.toDto(clienteDetalleBean)).orElse(null);
     }
 
     @Override
-    @Cacheable(cacheNames = "clientesDetalles")
+    @Cacheable(cacheNames = "clientesDetallesList")
     public List<ClienteDetalleDto> getAll(Pageable pag) {
         List<ClienteDetalleBean> clienteDetallesBean = clienteDetalleRepository.findAll();
         List<ClienteDetalleDto> clientesDetallesDto = new ArrayList<>();
@@ -73,7 +73,7 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
-    @CachePut(cacheNames = "clienteDetalle", key = "#id")
+    @CachePut(cacheNames = "clienteDetalleItem", key = "#id")
     public ClienteDetalleDto update(Integer id, ClienteDetalleDto clienteDetalleWithClienteDto) {
         Optional<ClienteDetalleBean> detalleOp = clienteDetalleRepository.findById(id);
         if (detalleOp.isPresent()) {
@@ -90,7 +90,7 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
-    @CacheEvict(cacheNames = "clienteDetalle", key="#id")
+    @CacheEvict(cacheNames = "clienteDetalleItem", key="#id")
     public boolean delete(Integer id) {
         if (clienteDetalleRepository.existsById(id)) {
             clienteDetalleRepository.deleteById(id);

@@ -22,21 +22,21 @@ public class CacheConfig {
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return (builder) -> builder
-                .withCacheConfiguration("clientes",
+                .withCacheConfiguration("clientesList",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(20)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("clientesDetalles",
+                .withCacheConfiguration("clientesDetallesList",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("proveedores",
+                .withCacheConfiguration("proveedoresList",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(20)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("proveedoresDetalles",
+                .withCacheConfiguration("proveedoresDetallesList",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("cliente",
+                .withCacheConfiguration("clienteItem",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("clienteDetalle",
+                .withCacheConfiguration("clienteDetalleItem",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("proveedor",
+                .withCacheConfiguration("proveedorItem",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("proveedorDetalle",
+                .withCacheConfiguration("proveedorDetalleItem",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())));
     }
 }

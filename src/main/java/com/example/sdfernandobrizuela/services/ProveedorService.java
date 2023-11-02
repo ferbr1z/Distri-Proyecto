@@ -9,6 +9,9 @@ import com.example.sdfernandobrizuela.repositories.IProveedorRepository;
 import com.example.sdfernandobrizuela.utils.mappers.proveedorMapper.ProveedorDetalleMapper;
 import com.example.sdfernandobrizuela.utils.mappers.proveedorMapper.ProveedorMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +34,7 @@ public class ProveedorService implements IService<ProveedorDto> {
     }
 
     @Override
+    @Cacheable(cacheNames = "proveedorItem", key = "#id", unless = "#result==null")
     public ProveedorDto getById(Integer id) {
         Optional<ProveedorBean> proveedor = proveedorRepository.findById(id);
         if(proveedor.isPresent()){
@@ -42,6 +46,7 @@ public class ProveedorService implements IService<ProveedorDto> {
     }
 
     @Override
+    @Cacheable(cacheNames = "proveedoresList")
     public List<ProveedorDto> getAll(Pageable pag) {
         List<ProveedorBean> proveedores = proveedorRepository.findAll();
         List<ProveedorDto> proveedoresDto = new ArrayList<>();
@@ -59,6 +64,7 @@ public class ProveedorService implements IService<ProveedorDto> {
     }
 
     @Override
+    @CachePut(cacheNames = "proveedorItem", key = "#id")
     public ProveedorDto update(Integer id, ProveedorDto proveedorDto) {
         Optional<ProveedorBean> proveedorBean = proveedorRepository.findById(id);
         if(proveedorBean.isPresent()){
@@ -72,6 +78,7 @@ public class ProveedorService implements IService<ProveedorDto> {
     }
 
     @Override
+    @CacheEvict(cacheNames = "proveedorItem", key="#id")
     public boolean delete(Integer id) {
         try{
             proveedorRepository.deleteById(id);

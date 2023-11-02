@@ -8,6 +8,8 @@ import com.example.sdfernandobrizuela.repositories.IProveedorDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IProveedorRepository;
 import com.example.sdfernandobrizuela.utils.mappers.proveedorMapper.ProveedorDetalleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,13 +43,14 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     }
 
     @Override
+    @Cacheable(cacheNames = "proveedorDetalleItem", key = "#id", unless = "#result==null")
     public ProveedorDetalleDto getById(Integer id) {
         ProveedorDetalleBean proveedorDetalleBean = proveedorDetalleRepository.findByProveedorId(id);
         return proveedorDetalleMapper.toDto(proveedorDetalleBean);
     }
 
     @Override
-    @Cacheable("detallesItems")
+    @Cacheable(cacheNames = "proveedoresDetallesList")
     public List<ProveedorDetalleDto> getAll(Pageable pag) {
         List<ProveedorDetalleBean> proveedorDetallesBean = proveedorDetalleRepository.findAll();
 
@@ -59,6 +62,7 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     }
 
     @Override
+    @CachePut(cacheNames = "proveedorDetalleItem", key = "#id")
     public ProveedorDetalleDto update(Integer id, ProveedorDetalleDto proveedorDetalleDto) {
         Optional<ProveedorDetalleBean> detalleOp = proveedorDetalleRepository.findById(id);
         if (detalleOp.isPresent()) {
@@ -74,6 +78,7 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     }
 
     @Override
+    @CacheEvict(cacheNames = "proveedorDetalleItem", key="#id")
     public boolean delete(Integer id) {
         if(proveedorDetalleRepository.existsById(id)){
             proveedorDetalleRepository.deleteById(id);

@@ -9,6 +9,8 @@ import com.example.sdfernandobrizuela.repositories.IClienteRepository;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteDetalleMapper;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ public class ClienteService implements IService<ClienteDto> {
     }
 
     @Override
+    @Cacheable(cacheNames = "clienteItem", key = "#id", unless = "#result==null")
     public ClienteDto getById(Integer id) {
         Optional<ClienteBean> cliente = clienteRepository.findById(id);
         if (cliente.isPresent()) {
@@ -49,7 +52,7 @@ public class ClienteService implements IService<ClienteDto> {
     }
 
     @Override
-    @Cacheable("items")
+    @Cacheable(cacheNames = "clientesList")
     public List<ClienteDto> getAll(Pageable pag) {
         Page<ClienteBean> clientes = clienteRepository.findAll(pag);
         List<ClienteDto> clientesDto = new ArrayList<>();
@@ -66,6 +69,7 @@ public class ClienteService implements IService<ClienteDto> {
     }
 
     @Override
+    @CachePut(cacheNames = "clienteItem", key = "#id")
     public ClienteDto update(Integer id, ClienteDto clienteDto) {
         Optional<ClienteBean> clienteOp = clienteRepository.findById(id);
 
@@ -82,6 +86,7 @@ public class ClienteService implements IService<ClienteDto> {
     }
 
     @Override
+    @CacheEvict(cacheNames = "clienteItem", key="#id")
     public boolean delete(Integer id) {
         if (clienteRepository.existsById(id)) {
             clienteRepository.deleteById(id);
