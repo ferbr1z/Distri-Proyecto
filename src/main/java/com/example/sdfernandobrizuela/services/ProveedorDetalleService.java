@@ -7,12 +7,17 @@ import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.repositories.IProveedorDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IProveedorRepository;
 import com.example.sdfernandobrizuela.utils.mappers.proveedorMapper.ProveedorDetalleMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,6 +30,9 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     private IProveedorDetalleRepository proveedorDetalleRepository;
     @Autowired
     private IProveedorRepository proveedorRepository;
+    @Autowired
+    private CacheManager cacheManager;
+    private Logger logger = LoggerFactory.getLogger(ProveedorDetalleService.class);
     private ProveedorDetalleMapper proveedorDetalleMapper = new ProveedorDetalleMapper();
 
     @Override
@@ -44,26 +52,37 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     }
 
     @Override
-    @Cacheable(cacheNames = "proveedorDetalleItem", key = "#id", unless = "#result==null")
+    @Cacheable(cacheNames = "sd::proveedorDetalleItem", key = "#id", unless = "#result==null")
     public ProveedorDetalleDto getById(Integer id) {
         ProveedorDetalleBean proveedorDetalleBean = proveedorDetalleRepository.findByProveedorId(id);
         return proveedorDetalleMapper.toDto(proveedorDetalleBean);
     }
 
     @Override
-    @Cacheable(cacheNames = "proveedoresDetallesList")
     public List<ProveedorDetalleDto> getAll(Pageable pag) {
         Page<ProveedorDetalleBean> proveedorDetallesBean = proveedorDetalleRepository.findAll(pag);
 
         List<ProveedorDetalleDto> proveedoresDetallesDto = new ArrayList<>();
         proveedorDetallesBean.forEach(detalle ->
-                proveedoresDetallesDto.add(proveedorDetalleMapper.toDto(detalle))
+                {
+                    ProveedorDetalleDto proveedorDetalleDto = proveedorDetalleMapper.toDto(detalle);
+                    // Cacheamos cada DTO
+                    String cacheKey = "proveedorDetalleItem::" + proveedorDetalleDto.getId();
+                    Cache cache = cacheManager.getCache("sd");
+                    Object elementoCacheado = cache.get(cacheKey, Object.class);
+
+                    if (elementoCacheado == null) {
+                        logger.info("Cacheando proveedorDetalle con id: " + proveedorDetalleDto.getId());
+                        cache.put(cacheKey, proveedorDetalleDto);
+                    }
+                    proveedoresDetallesDto.add(proveedorDetalleDto);
+                }
         );
         return proveedoresDetallesDto;
     }
 
     @Override
-    @CachePut(cacheNames = "proveedorDetalleItem", key = "#id")
+    @CachePut(cacheNames = "sd::proveedorDetalleItem", key = "#id")
     public ProveedorDetalleDto update(Integer id, ProveedorDetalleDto proveedorDetalleDto) {
         Optional<ProveedorDetalleBean> detalleOp = proveedorDetalleRepository.findById(id);
         if (detalleOp.isPresent()) {
@@ -79,7 +98,7 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     }
 
     @Override
-    @CacheEvict(cacheNames = "proveedorDetalleItem", key="#id")
+    @CacheEvict(cacheNames = "sd::proveedorDetalleItem", key="#id")
     public boolean delete(Integer id) {
         if(proveedorDetalleRepository.existsById(id)){
             proveedorDetalleRepository.deleteById(id);

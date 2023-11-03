@@ -8,6 +8,8 @@ import com.example.sdfernandobrizuela.repositories.IClienteDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IClienteRepository;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteDetalleMapper;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -32,6 +34,7 @@ public class ClienteService implements IService<ClienteDto> {
     IClienteDetalleRepository clienteDetalleRepository;
     @Autowired
     private CacheManager cacheManager;
+    private Logger logger = LoggerFactory.getLogger(ClienteService.class);
     private ClienteMapper clienteMapper = new ClienteMapper();
     private ClienteDetalleMapper clienteDetalleMapper = new ClienteDetalleMapper();
 
@@ -75,6 +78,7 @@ public class ClienteService implements IService<ClienteDto> {
                     Object elementoCacheado = cache.get(cacheKey, Object.class);
 
                     if (elementoCacheado == null) {
+                        logger.info("Cacheando cliente con id: " + clienteDto.getId());
                         cache.put(cacheKey, clienteDto);
                     }
 
@@ -85,7 +89,7 @@ public class ClienteService implements IService<ClienteDto> {
     }
 
     @Override
-    @CachePut(cacheNames = "clienteItem", key = "#id")
+    @CachePut(cacheNames = "sd::clienteItem", key = "#id")
     public ClienteDto update(Integer id, ClienteDto clienteDto) {
         Optional<ClienteBean> clienteOp = clienteRepository.findById(id);
 
@@ -102,7 +106,7 @@ public class ClienteService implements IService<ClienteDto> {
     }
 
     @Override
-    @CacheEvict(cacheNames = "clienteItem", key = "#id")
+    @CacheEvict(cacheNames = "sd::clienteItem", key = "#id")
     public boolean delete(Integer id) {
         if (clienteRepository.existsById(id)) {
             clienteRepository.deleteById(id);

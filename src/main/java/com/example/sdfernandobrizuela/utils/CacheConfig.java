@@ -1,6 +1,5 @@
 package com.example.sdfernandobrizuela.utils;
 
-import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -28,23 +27,4 @@ public class CacheConfig {
                 .serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
     }
 
-    @Bean
-    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
-        return (builder) -> builder
-
-                .withCacheConfiguration("clientesDetallesList",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("proveedoresList",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(20)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("proveedoresDetallesList",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("sd::clienteItem",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("sd::clienteDetalleItem",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("sd::proveedorItem",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
-                .withCacheConfiguration("sd::proveedorDetalleItem",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)).serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())));
-    }
 }

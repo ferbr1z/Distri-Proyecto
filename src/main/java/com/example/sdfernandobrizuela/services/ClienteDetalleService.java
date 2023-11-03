@@ -8,7 +8,11 @@ import com.example.sdfernandobrizuela.repositories.IClienteDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IClienteRepository;
 import com.example.sdfernandobrizuela.utils.CacheConfig;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteDetalleMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -26,6 +30,9 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     private IClienteDetalleRepository clienteDetalleRepository;
     @Autowired
     private IClienteRepository clienteRepository;
+    @Autowired
+    private CacheManager cacheManager;
+    private Logger logger = LoggerFactory.getLogger(ClienteDetalleService.class);
 
     private ClienteDetalleMapper clienteDetalleMapper = new ClienteDetalleMapper();
 
@@ -55,26 +62,38 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
-    @Cacheable(cacheNames = "clienteDetalleItem", key = "#id", unless = "#result==null")
+    @Cacheable(cacheNames = "sd::clienteDetalleItem", key = "#id", unless = "#result==null")
     public ClienteDetalleDto getById(Integer id) {
         Optional<ClienteDetalleBean> clienteDetalleOp = clienteDetalleRepository.findById(id);
         return clienteDetalleOp.map(clienteDetalleBean -> clienteDetalleMapper.toDto(clienteDetalleBean)).orElse(null);
     }
 
     @Override
-    @Cacheable(cacheNames = "clientesDetallesList")
     public List<ClienteDetalleDto> getAll(Pageable pag) {
         Page<ClienteDetalleBean> clienteDetallesBean = clienteDetalleRepository.findAll(pag);
         List<ClienteDetalleDto> clientesDetallesDto = new ArrayList<>();
 
         clienteDetallesBean.forEach(detalle ->
-                clientesDetallesDto.add(clienteDetalleMapper.toDto(detalle))
+                {
+                    ClienteDetalleDto clienteDetalleDto = clienteDetalleMapper.toDto(detalle);
+                    // Cacheamos cada DTO
+                    String cacheKey = "clienteDetalleItem::" + clienteDetalleDto.getId();
+                    Cache cache = cacheManager.getCache("sd");
+                    Object elementoCacheado = cache.get(cacheKey, Object.class);
+
+                    if (elementoCacheado == null) {
+                        logger.info("Cacheando clienteDetalle con id: " + clienteDetalleDto.getId());
+                        cache.put(cacheKey, clienteDetalleDto);
+                    }
+
+                    clientesDetallesDto.add(clienteDetalleDto);
+                }
         );
         return clientesDetallesDto;
     }
 
     @Override
-    @CachePut(cacheNames = "clienteDetalleItem", key = "#id")
+    @CachePut(cacheNames = "sd::clienteDetalleItem", key = "#id")
     public ClienteDetalleDto update(Integer id, ClienteDetalleDto clienteDetalleWithClienteDto) {
         Optional<ClienteDetalleBean> detalleOp = clienteDetalleRepository.findById(id);
         if (detalleOp.isPresent()) {
@@ -91,7 +110,7 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
-    @CacheEvict(cacheNames = "clienteDetalleItem", key="#id")
+    @CacheEvict(cacheNames = "sd::clienteDetalleItem", key="#id")
     public boolean delete(Integer id) {
         if (clienteDetalleRepository.existsById(id)) {
             clienteDetalleRepository.deleteById(id);
