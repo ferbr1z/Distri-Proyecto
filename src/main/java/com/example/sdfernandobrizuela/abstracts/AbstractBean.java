@@ -9,9 +9,19 @@ public abstract class AbstractBean implements IBean {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(columnDefinition = "boolean default true")
-    private boolean isActive;
+    private boolean active;
+
     @Override
     public Integer getId() {
         return id;
     }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
 }

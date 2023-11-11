@@ -17,8 +17,8 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,9 +54,18 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     @Override
     @Cacheable(cacheNames = "sd::proveedorDetalleItem", key = "#id", unless = "#result==null")
     public ProveedorDetalleDto getById(Integer id) {
-        ProveedorDetalleBean proveedorDetalleBean = proveedorDetalleRepository.findByProveedorId(id);
-        return proveedorDetalleMapper.toDto(proveedorDetalleBean);
+        Optional<ProveedorDetalleBean> proveedorDetalleBean = proveedorDetalleRepository.findByIdAndActiveTrue(id);
+        return proveedorDetalleMapper.toDto(proveedorDetalleBean.get());
     }
+
+    @Transactional
+    @Cacheable(cacheNames = "sd::proveedorDetalleItem", key = "#id", unless = "#result==null")
+    public ProveedorDetalleDto getByProveedorId(Integer id) {
+        Optional<ProveedorDetalleBean> proveedorDetalleBean = proveedorDetalleRepository.findByIdAndActiveTrue(id);
+        if(proveedorDetalleBean!=null)    return proveedorDetalleMapper.toDto(proveedorDetalleBean.get());
+        return null;
+    }
+
 
     @Override
     public List<ProveedorDetalleDto> getAll(Pageable pag) {
@@ -100,11 +109,12 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     @Override
     @CacheEvict(cacheNames = "sd::proveedorDetalleItem", key="#id")
     public boolean delete(Integer id) {
-        if(proveedorDetalleRepository.existsById(id)){
-            proveedorDetalleRepository.deleteById(id);
+        if(proveedorRepository.findByIdAndActiveTrue(id).isPresent()) {
+            ProveedorDetalleBean proveedorDetalleBean = proveedorDetalleRepository.findByIdAndActiveTrue(id).get();
+            proveedorDetalleBean.setActive(false);
+            proveedorDetalleRepository.save(proveedorDetalleBean);
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 }

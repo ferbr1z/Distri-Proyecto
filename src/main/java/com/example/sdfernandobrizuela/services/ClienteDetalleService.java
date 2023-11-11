@@ -68,6 +68,11 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
         return clienteDetalleOp.map(clienteDetalleBean -> clienteDetalleMapper.toDto(clienteDetalleBean)).orElse(null);
     }
 
+    public ClienteDetalleDto getByClienteId(Integer id) {
+        Optional<ClienteDetalleBean> clienteDetalleBean = clienteDetalleRepository.findByClienteId(id);
+        return clienteDetalleMapper.toDto(clienteDetalleBean.get());
+    }
+
     @Override
     public List<ClienteDetalleDto> getAll(Pageable pag) {
         Page<ClienteDetalleBean> clienteDetallesBean = clienteDetalleRepository.findAll(pag);
