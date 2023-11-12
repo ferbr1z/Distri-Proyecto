@@ -44,12 +44,14 @@ public class ClienteService implements IService<ClienteDto> {
 
 
     @Override
+    @Transactional
     public ClienteDto create(ClienteDto clienteDto) {
         ClienteBean cliente = clienteMapper.toBean(clienteDto);
         return clienteMapper.toDto(clienteRepository.save(cliente));
     }
 
     @Override
+    @Transactional
     @Cacheable(cacheNames = "sd::clienteItem", key = "#id", unless = "#result==null")
     public ClienteDto getById(Integer id) {
         Optional<ClienteBean> cliente = clienteRepository.findByIdAndActiveTrue(id);
@@ -71,6 +73,7 @@ public class ClienteService implements IService<ClienteDto> {
     }
 
     @Override
+    @Transactional
     public List<ClienteDto> getAll(Pageable pag) {
         Page<ClienteBean> clientesBean = clienteRepository.findAll(pag);
         List<ClienteDto> clientesDto = new ArrayList<>();
@@ -94,6 +97,7 @@ public class ClienteService implements IService<ClienteDto> {
     }
 
     @Override
+    @Transactional
     @CachePut(cacheNames = "sd::clienteItem", key = "#id")
     public ClienteDto update(Integer id, ClienteDto clienteDto) {
         Optional<ClienteBean> clienteOp = clienteRepository.findById(id);

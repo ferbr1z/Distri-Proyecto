@@ -19,6 +19,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
+    @Transactional
     public ClienteDetalleDto create(ClienteDetalleDto clienteDetalleDto) {
 
         ClienteDetalleBean clienteDetalleBean = new ClienteDetalleBean();
@@ -62,6 +64,7 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
+    @Transactional
     @Cacheable(cacheNames = "sd::clienteDetalleItem", key = "#id", unless = "#result==null")
     public ClienteDetalleDto getById(Integer id) {
         Optional<ClienteDetalleBean> clienteDetalleOp = clienteDetalleRepository.findById(id);
@@ -74,6 +77,7 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
+    @Transactional
     public List<ClienteDetalleDto> getAll(Pageable pag) {
         Page<ClienteDetalleBean> clienteDetallesBean = clienteDetalleRepository.findAll(pag);
         List<ClienteDetalleDto> clientesDetallesDto = new ArrayList<>();
@@ -98,6 +102,7 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
+    @Transactional
     @CachePut(cacheNames = "sd::clienteDetalleItem", key = "#id")
     public ClienteDetalleDto update(Integer id, ClienteDetalleDto clienteDetalleWithClienteDto) {
         Optional<ClienteDetalleBean> detalleOp = clienteDetalleRepository.findById(id);
@@ -115,6 +120,7 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     }
 
     @Override
+    @Transactional
     @CacheEvict(cacheNames = "sd::clienteDetalleItem", key="#id")
     public boolean delete(Integer id) {
         if (clienteDetalleRepository.existsById(id)) {

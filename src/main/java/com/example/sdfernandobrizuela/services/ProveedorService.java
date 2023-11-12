@@ -39,6 +39,7 @@ public class ProveedorService implements IService<ProveedorDto> {
     private ProveedorDetalleMapper proveedorDetalleMapper = new ProveedorDetalleMapper();
 
     @Override
+    @Transactional
     public ProveedorDto create(ProveedorDto proveedorDto) {
         ProveedorBean proveedor = proveedorMapper.toBean(proveedorDto);
         return proveedorMapper.toDto(proveedorRepository.save(proveedor));
@@ -63,6 +64,7 @@ public class ProveedorService implements IService<ProveedorDto> {
 
 
     @Override
+    @Transactional
     public List<ProveedorDto> getAll(Pageable pag) {
         Page<ProveedorBean> proveedores = proveedorRepository.findAll(pag);
         List<ProveedorDto> proveedoresDto = new ArrayList<>();
@@ -86,6 +88,7 @@ public class ProveedorService implements IService<ProveedorDto> {
     }
 
     @Override
+    @Transactional
     @CachePut(cacheNames = "sd::proveedorItem", key = "#id")
     public ProveedorDto update(Integer id, ProveedorDto proveedorDto) {
         Optional<ProveedorBean> proveedorBean = proveedorRepository.findById(id);
@@ -100,6 +103,7 @@ public class ProveedorService implements IService<ProveedorDto> {
     }
 
     @Override
+    @Transactional
     @CacheEvict(cacheNames = "sd::proveedorItem", key = "#id")
     public boolean delete(Integer id) {
         if (proveedorRepository.findByIdAndActiveTrue(id).isPresent()) {
