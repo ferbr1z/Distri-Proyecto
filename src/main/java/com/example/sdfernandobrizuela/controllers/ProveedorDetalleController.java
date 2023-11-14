@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,12 +24,14 @@ public class ProveedorDetalleController implements IController<ProveedorDetalleD
 
     @Override
     @PostMapping
+    @PreAuthorize( "hasRole('USER')")
     public ResponseEntity create(@RequestBody ProveedorDetalleDto proveedorDetalleDto) {
         return ResponseEntity.ok(proveedorDetalleService.create(proveedorDetalleDto));
     }
 
     @Override
     @GetMapping("/{id}")
+    @PreAuthorize( "hasRole('USER')")
     public ResponseEntity getById(@PathVariable Integer id) {
         ProveedorDetalleDto detalleDto = proveedorDetalleService.getById(id);
         if(detalleDto!=null){
@@ -39,6 +42,7 @@ public class ProveedorDetalleController implements IController<ProveedorDetalleD
 
     @Override
     @GetMapping("/pages/{page_num}")
+    @PreAuthorize( "hasRole('USER')")
     public List<ProveedorDetalleDto> getAll(@PathVariable(value = "page_num") Integer page) {
         Pageable pag = PageRequest.of(page, Setting.PAGE_SIZE);
         return proveedorDetalleService.getAll(pag);
@@ -46,6 +50,7 @@ public class ProveedorDetalleController implements IController<ProveedorDetalleD
 
     @Override
     @PutMapping("/{id}")
+    @PreAuthorize( "hasRole('USER')")
     public ResponseEntity update(@PathVariable Integer id, @RequestBody ProveedorDetalleDto proveedorDetalleDto) {
         ProveedorDetalleDto detalleDto = proveedorDetalleService.update(id, proveedorDetalleDto);
         if(detalleDto != null){
@@ -56,6 +61,7 @@ public class ProveedorDetalleController implements IController<ProveedorDetalleD
 
     @Override
     @DeleteMapping("/{id}")
+    @PreAuthorize( "hasRole('USER')")
     public ResponseEntity delete(@PathVariable Integer id) {
         if(proveedorDetalleService.delete(id)){
             return ResponseEntity.ok("Se ha eliminado el detalle " + id);

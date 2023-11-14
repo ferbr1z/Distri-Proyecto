@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,12 +21,14 @@ public class ProveedorController implements IController<ProveedorDto> {
     IService<ProveedorDto> proveedorService;
     @Override
     @PostMapping
+    @PreAuthorize( "hasRole('USER')")
     public ResponseEntity create(@RequestBody ProveedorDto proveedorDto) {
         return ResponseEntity.ok(proveedorService.create(proveedorDto));
     }
 
     @Override
     @GetMapping("/{id}")
+    @PreAuthorize( "hasRole('USER')")
     public ResponseEntity getById(@PathVariable Integer id) {
         ProveedorDto proveedorDto = proveedorService.getById(id);
         if(proveedorDto!=null){
@@ -36,6 +39,7 @@ public class ProveedorController implements IController<ProveedorDto> {
 
     @Override
     @GetMapping("/pages/{page_num}")
+    @PreAuthorize( "hasRole('USER')")
     public List<ProveedorDto> getAll(@PathVariable(value = "page_num") Integer page){
         Pageable pag = PageRequest.of(page, Setting.PAGE_SIZE);
         return proveedorService.getAll(pag);
@@ -43,6 +47,7 @@ public class ProveedorController implements IController<ProveedorDto> {
 
     @Override
     @PutMapping("/{id}")
+    @PreAuthorize( "hasRole('USER')")
     public ResponseEntity update(@PathVariable Integer id, @RequestBody ProveedorDto proveedorDto) {
         ProveedorDto proveedor = proveedorService.update(id, proveedorDto);
         if(proveedor!=null){
@@ -54,6 +59,7 @@ public class ProveedorController implements IController<ProveedorDto> {
 
     @Override
     @DeleteMapping("/{id}")
+    @PreAuthorize( "hasRole('USER')")
     public ResponseEntity delete(@PathVariable Integer id) {
         if(proveedorService.delete(id)){
             return ResponseEntity.ok("Se ha eliminado al usuario con id " + id);

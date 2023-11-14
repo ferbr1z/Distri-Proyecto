@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,12 +25,14 @@ public class ClienteDetalleController implements IController<ClienteDetalleDto> 
 
     @Override
     @PostMapping
+    @PreAuthorize( "hasRole('USER')")
     public ResponseEntity create(@RequestBody ClienteDetalleDto clienteDetalleDto) {
         return ResponseEntity.ok(clienteDetalleService.create(clienteDetalleDto));
     }
 
     @Override
     @GetMapping("/{id}")
+    @PreAuthorize( "hasRole('USER')")
     public ResponseEntity getById(@PathVariable Integer id) {
         ClienteDetalleDto detalleDto = clienteDetalleService.getById(id);
         if(detalleDto!=null){
@@ -40,6 +43,7 @@ public class ClienteDetalleController implements IController<ClienteDetalleDto> 
 
     @Override
     @GetMapping("/pages/{page_num}")
+    @PreAuthorize( "hasRole('USER')")
     public List<ClienteDetalleDto> getAll(@PathVariable(value = "page_num") Integer page){
         Pageable pag = PageRequest.of(page, Setting.PAGE_SIZE);
         return clienteDetalleService.getAll(pag);
@@ -47,6 +51,7 @@ public class ClienteDetalleController implements IController<ClienteDetalleDto> 
 
     @Override
     @PutMapping("/{id}")
+    @PreAuthorize( "hasRole('USER')")
     public ResponseEntity update(@PathVariable Integer id, @RequestBody ClienteDetalleDto clienteDetalleWithClienteDto) {
         ClienteDetalleDto detalleDto = clienteDetalleService.update(id, clienteDetalleWithClienteDto);
         if(detalleDto != null){
@@ -57,6 +62,7 @@ public class ClienteDetalleController implements IController<ClienteDetalleDto> 
 
     @Override
     @DeleteMapping("/{id}")
+    @PreAuthorize( "hasRole('USER')")
     public ResponseEntity delete(@PathVariable Integer id) {
         if(clienteDetalleService.delete(id)){
             return ResponseEntity.ok("Se ha borrado el detalle de cliente " + id);
