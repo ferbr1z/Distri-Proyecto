@@ -1,7 +1,7 @@
 package com.example.sdfernandobrizuela.utils.mappers.proveedorMapper;
 
 import com.example.sdfernandobrizuela.beans.ProveedorBean;
-import com.example.sdfernandobrizuela.dtos.ProveedorDto;
+import com.example.sdfernandobrizuela.dtos.proveedor.ProveedorDto;
 import com.example.sdfernandobrizuela.utils.mappers.AbstractMapper;
 
 public class ProveedorMapper extends AbstractMapper<ProveedorBean, ProveedorDto> {

@@ -1,11 +1,9 @@
 package com.example.sdfernandobrizuela.services;
 
 import com.example.sdfernandobrizuela.beans.ClienteBean;
-import com.example.sdfernandobrizuela.beans.ClienteDetalleBean;
-import com.example.sdfernandobrizuela.dtos.ClienteDto;
-import com.example.sdfernandobrizuela.dtos.ClienteWithDetalleDto;
+import com.example.sdfernandobrizuela.dtos.cliente.ClienteDto;
+import com.example.sdfernandobrizuela.dtos.cliente.ClienteWithDetalleDto;
 import com.example.sdfernandobrizuela.interfaces.IService;
-import com.example.sdfernandobrizuela.repositories.IClienteDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IClienteRepository;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteDetalleMapper;
 import com.example.sdfernandobrizuela.utils.mappers.clienteMapper.ClienteMapper;
@@ -74,24 +72,16 @@ public class ClienteService implements IService<ClienteDto> {
 
     @Override
     @Transactional
-    public List<ClienteDto> getAll(Pageable pag) {
+    public Page<ClienteDto> getAll(Pageable pag) {
         Page<ClienteBean> clientesBean = clienteRepository.findAll(pag);
-        List<ClienteDto> clientesDto = new ArrayList<>();
+        Page<ClienteDto> clientesDto = clientesBean.map(clienteMapper::toDto);
 
-        clientesBean.forEach(clienteBean -> {
-            ClienteDto clienteDto = clienteMapper.toDto(clienteBean);
-            // Cacheamos cada DTO
-            String cacheKey = "clienteItem::" + clienteDto.getId();
-            Cache cache = cacheManager.getCache("sd");
-            Object elementoCacheado = cache.get(cacheKey, Object.class);
-
-            if (elementoCacheado == null) {
-                logger.info("Cacheando cliente con id: " + clienteDto.getId());
-                cache.put(cacheKey, clienteDto);
-            }
-
-            clientesDto.add(clienteDto);
-        });
+        // cacheamos
+        clientesDto.forEach(cliente -> {
+                    String cacheKey = "clienteItem::" + cliente.getId();
+                    cacheManager.getCache("sd").putIfAbsent(cacheKey, cliente);
+                }
+        );
 
         return clientesDto;
     }
@@ -123,7 +113,7 @@ public class ClienteService implements IService<ClienteDto> {
             clienteBean.setActive(false);
             clienteRepository.save(clienteBean);
             return true;
-        }else {
+        } else {
             throw new NoSuchElementException("No se ha encontrado el cliente con id: " + id);
         }
     }

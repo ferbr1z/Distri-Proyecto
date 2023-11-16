@@ -1,7 +1,7 @@
 package com.example.sdfernandobrizuela.utils.mappers.clienteMapper;
 
 import com.example.sdfernandobrizuela.beans.ClienteBean;
-import com.example.sdfernandobrizuela.dtos.ClienteDto;
+import com.example.sdfernandobrizuela.dtos.cliente.ClienteDto;
 import com.example.sdfernandobrizuela.utils.mappers.AbstractMapper;
 
 public class ClienteMapper extends AbstractMapper<ClienteBean, ClienteDto> {

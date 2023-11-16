@@ -1,10 +1,9 @@
 package com.example.sdfernandobrizuela.services;
 
 import com.example.sdfernandobrizuela.beans.ProveedorBean;
-import com.example.sdfernandobrizuela.dtos.ProveedorDto;
-import com.example.sdfernandobrizuela.dtos.ProveedorWithDetalleDto;
+import com.example.sdfernandobrizuela.dtos.proveedor.ProveedorDto;
+import com.example.sdfernandobrizuela.dtos.proveedor.ProveedorWithDetalleDto;
 import com.example.sdfernandobrizuela.interfaces.IService;
-import com.example.sdfernandobrizuela.repositories.IProveedorDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IProveedorRepository;
 import com.example.sdfernandobrizuela.utils.mappers.proveedorMapper.ProveedorDetalleMapper;
 import com.example.sdfernandobrizuela.utils.mappers.proveedorMapper.ProveedorMapper;
@@ -65,25 +64,16 @@ public class ProveedorService implements IService<ProveedorDto> {
 
     @Override
     @Transactional
-    public List<ProveedorDto> getAll(Pageable pag) {
+    public Page<ProveedorDto> getAll(Pageable pag) {
         Page<ProveedorBean> proveedores = proveedorRepository.findAll(pag);
-        List<ProveedorDto> proveedoresDto = new ArrayList<>();
+        Page<ProveedorDto> proveedoresDto = proveedores.map(proveedorMapper::toDto);
 
-        proveedores.forEach(proveedor ->
-                {
-                    ProveedorDto proveedorDto = proveedorMapper.toDto(proveedor);
-                    // Cacheamos cada DTO
-                    String cacheKey = "proveedorItem::" + proveedorDto.getId();
-                    Cache cache = cacheManager.getCache("sd");
-                    Object elementoCacheado = cache.get(cacheKey, Object.class);
-
-                    if (elementoCacheado == null) {
-                        logger.info("Cacheando proveedor con id: " + proveedorDto.getId());
-                        cache.put(cacheKey, proveedorDto);
-                    }
-                    proveedoresDto.add(proveedorDto);
+        proveedoresDto.forEach(proveedorDto -> {
+                    String cacheKey = "sd::proveedorItem::" + proveedorDto.getId();
+                    cacheManager.getCache("sd").putIfAbsent(cacheKey, proveedorDto);
                 }
         );
+
         return proveedoresDto;
     }
 

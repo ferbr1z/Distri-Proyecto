@@ -1,4 +1,4 @@
-package com.example.sdfernandobrizuela.dtos;
+package com.example.sdfernandobrizuela.dtos.proveedor;
 
 import lombok.Data;
 

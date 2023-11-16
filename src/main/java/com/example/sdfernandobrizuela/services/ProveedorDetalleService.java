@@ -2,7 +2,7 @@ package com.example.sdfernandobrizuela.services;
 
 import com.example.sdfernandobrizuela.beans.ProveedorBean;
 import com.example.sdfernandobrizuela.beans.ProveedorDetalleBean;
-import com.example.sdfernandobrizuela.dtos.ProveedorDetalleDto;
+import com.example.sdfernandobrizuela.dtos.proveedor.ProveedorDetalleDto;
 import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.repositories.IProveedorDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IProveedorRepository;
@@ -64,32 +64,24 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     @Cacheable(cacheNames = "sd::proveedorDetalleItem", key = "#id", unless = "#result==null")
     public ProveedorDetalleDto getByProveedorId(Integer id) {
         Optional<ProveedorDetalleBean> proveedorDetalleBean = proveedorDetalleRepository.findByIdAndActiveTrue(id);
-        if(proveedorDetalleBean!=null)    return proveedorDetalleMapper.toDto(proveedorDetalleBean.get());
+        if (proveedorDetalleBean != null) return proveedorDetalleMapper.toDto(proveedorDetalleBean.get());
         return null;
     }
 
 
     @Override
     @Transactional
-    public List<ProveedorDetalleDto> getAll(Pageable pag) {
+    public Page<ProveedorDetalleDto> getAll(Pageable pag) {
         Page<ProveedorDetalleBean> proveedorDetallesBean = proveedorDetalleRepository.findAll(pag);
 
-        List<ProveedorDetalleDto> proveedoresDetallesDto = new ArrayList<>();
-        proveedorDetallesBean.forEach(detalle ->
-                {
-                    ProveedorDetalleDto proveedorDetalleDto = proveedorDetalleMapper.toDto(detalle);
-                    // Cacheamos cada DTO
-                    String cacheKey = "proveedorDetalleItem::" + proveedorDetalleDto.getId();
-                    Cache cache = cacheManager.getCache("sd");
-                    Object elementoCacheado = cache.get(cacheKey, Object.class);
+        Page<ProveedorDetalleDto> proveedoresDetallesDto = proveedorDetallesBean.map(proveedorDetalleMapper::toDto);
 
-                    if (elementoCacheado == null) {
-                        logger.info("Cacheando proveedorDetalle con id: " + proveedorDetalleDto.getId());
-                        cache.put(cacheKey, proveedorDetalleDto);
-                    }
-                    proveedoresDetallesDto.add(proveedorDetalleDto);
+        proveedoresDetallesDto.forEach(proveedorDetalleDto -> {
+                    String cacheKey = "sd::proveedorDetalleItem::" + proveedorDetalleDto.getId();
+                    cacheManager.getCache("sd").putIfAbsent(cacheKey, proveedorDetalleDto);
                 }
         );
+
         return proveedoresDetallesDto;
     }
 
@@ -112,9 +104,9 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
 
     @Override
     @Transactional
-    @CacheEvict(cacheNames = "sd::proveedorDetalleItem", key="#id")
+    @CacheEvict(cacheNames = "sd::proveedorDetalleItem", key = "#id")
     public boolean delete(Integer id) {
-        if(proveedorRepository.findByIdAndActiveTrue(id).isPresent()) {
+        if (proveedorRepository.findByIdAndActiveTrue(id).isPresent()) {
             ProveedorDetalleBean proveedorDetalleBean = proveedorDetalleRepository.findByIdAndActiveTrue(id).get();
             proveedorDetalleBean.setActive(false);
             proveedorDetalleRepository.save(proveedorDetalleBean);

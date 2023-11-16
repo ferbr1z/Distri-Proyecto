@@ -2,7 +2,7 @@ package com.example.sdfernandobrizuela.services;
 
 import com.example.sdfernandobrizuela.beans.ClienteBean;
 import com.example.sdfernandobrizuela.beans.ClienteDetalleBean;
-import com.example.sdfernandobrizuela.dtos.ClienteDetalleDto;
+import com.example.sdfernandobrizuela.dtos.cliente.ClienteDetalleDto;
 import com.example.sdfernandobrizuela.interfaces.IService;
 import com.example.sdfernandobrizuela.repositories.IClienteDetalleRepository;
 import com.example.sdfernandobrizuela.repositories.IClienteRepository;
@@ -78,27 +78,17 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
 
     @Override
     @Transactional
-    public List<ClienteDetalleDto> getAll(Pageable pag) {
+    public Page<ClienteDetalleDto> getAll(Pageable pag) {
         Page<ClienteDetalleBean> clienteDetallesBean = clienteDetalleRepository.findAll(pag);
-        List<ClienteDetalleDto> clientesDetallesDto = new ArrayList<>();
+        Page<ClienteDetalleDto> clienteDetallesDto = clienteDetallesBean.map(clienteDetalleMapper::toDto);
 
-        clienteDetallesBean.forEach(detalle ->
-                {
-                    ClienteDetalleDto clienteDetalleDto = clienteDetalleMapper.toDto(detalle);
-                    // Cacheamos cada DTO
-                    String cacheKey = "clienteDetalleItem::" + clienteDetalleDto.getId();
-                    Cache cache = cacheManager.getCache("sd");
-                    Object elementoCacheado = cache.get(cacheKey, Object.class);
-
-                    if (elementoCacheado == null) {
-                        logger.info("Cacheando clienteDetalle con id: " + clienteDetalleDto.getId());
-                        cache.put(cacheKey, clienteDetalleDto);
-                    }
-
-                    clientesDetallesDto.add(clienteDetalleDto);
+        clienteDetallesDto.forEach(clienteDetalleDto -> {
+                    String cacheKey = "sd::clienteDetalleItem::" + clienteDetalleDto.getId();
+                    cacheManager.getCache("sd").putIfAbsent(cacheKey, clienteDetalleDto);
                 }
         );
-        return clientesDetallesDto;
+
+        return clienteDetallesDto;
     }
 
     @Override
