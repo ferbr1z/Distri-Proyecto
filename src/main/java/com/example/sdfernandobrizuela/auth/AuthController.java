@@ -16,7 +16,7 @@ public class AuthController {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @PostAuthorize("hasRole('ADMIN')")
+//    @PostAuthorize("hasRole('ADMIN')")
     @PostMapping("/register")
     public ResponseEntity registrar(@RequestBody RegisterRequest request){
         return ResponseEntity.ok(authenticationService.registrar(request));
