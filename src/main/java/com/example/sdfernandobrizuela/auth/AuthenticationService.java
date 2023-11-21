@@ -26,16 +26,18 @@ public class AuthenticationService {
     @Autowired
     private AuthenticationManager authenticationManager;
     Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
-    public AuthResponse registrar(RegisterRequest request){
-        logger.warn(request.getPassword());
-        var user = UserBean.builder()
+
+    public AuthResponse registrar(RegisterRequest request) {
+        UserBean user = UserBean.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(RoleEnum.USER)
                 .build();
+
         userRepository.save(user);
         String jwt = jwtService.generateToken(user);
+
         return AuthResponse.builder()
                 .username(user.getUsername())
                 .email(user.getEmail())
@@ -43,11 +45,10 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthResponse authenticate(AuthRequest request){
+    public AuthResponse authenticate(AuthRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-
 
         Optional<UserBean> user = userRepository.findByEmail(request.getEmail());
         String jwt = jwtService.generateToken(user.get());
@@ -57,7 +58,6 @@ public class AuthenticationService {
                 .email(user.get().getEmail())
                 .token(jwt)
                 .build();
-
     }
 
 
