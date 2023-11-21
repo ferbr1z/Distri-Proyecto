@@ -27,14 +27,14 @@ public class ProveedorDetalleController implements IController<ProveedorDetalleD
 
     @Override
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity create(@RequestBody ProveedorDetalleDto proveedorDetalleDto) {
         return ResponseEntity.ok(proveedorDetalleService.create(proveedorDetalleDto));
     }
 
     @Override
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity getById(@PathVariable Integer id) {
         ProveedorDetalleDto detalleDto = proveedorDetalleService.getById(id);
         if (detalleDto != null) {
@@ -45,7 +45,7 @@ public class ProveedorDetalleController implements IController<ProveedorDetalleD
 
     @Override
     @GetMapping("/pages/{page_num}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity<Map<String, Object>> getAll(@PathVariable(value = "page_num") Integer page) {
         Pageable pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
         Page proveedorDetalleDtoPage = proveedorDetalleService.getAll(pag);
@@ -62,7 +62,7 @@ public class ProveedorDetalleController implements IController<ProveedorDetalleD
 
     @Override
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity update(@PathVariable Integer id, @RequestBody ProveedorDetalleDto proveedorDetalleDto) {
         ProveedorDetalleDto detalleDto = proveedorDetalleService.update(id, proveedorDetalleDto);
         if (detalleDto != null) {
@@ -73,7 +73,7 @@ public class ProveedorDetalleController implements IController<ProveedorDetalleD
 
     @Override
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity delete(@PathVariable Integer id) {
         if (proveedorDetalleService.delete(id)) {
             return ResponseEntity.ok("Se ha eliminado el detalle " + id);

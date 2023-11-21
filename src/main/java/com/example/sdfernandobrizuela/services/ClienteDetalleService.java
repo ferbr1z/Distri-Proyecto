@@ -73,7 +73,10 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
 
     public ClienteDetalleDto getByClienteId(Integer id) {
         Optional<ClienteDetalleBean> clienteDetalleBean = clienteDetalleRepository.findByClienteId(id);
-        return clienteDetalleMapper.toDto(clienteDetalleBean.get());
+        if(clienteDetalleBean.isPresent()){
+            return clienteDetalleMapper.toDto(clienteDetalleBean.get());
+        }
+        return null;
     }
 
     @Override

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +28,7 @@ public class ClienteController implements IController<ClienteDto> {
 
     @Override
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity create(@RequestBody ClienteDto clienteDto) {
         ClienteDto cliente = clienteService.create(clienteDto);
         return ResponseEntity.ok(cliente);
@@ -35,7 +36,7 @@ public class ClienteController implements IController<ClienteDto> {
 
     @Override
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity getById(@PathVariable Integer id) {
         ClienteDto cliente = clienteService.getById(id);
         if (cliente != null) {
@@ -45,8 +46,8 @@ public class ClienteController implements IController<ClienteDto> {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     @GetMapping("/pages/{page_num}")
-    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Map<String, Object>> getAll(@PathVariable(value = "page_num") Integer page) {
         Pageable pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
 
@@ -64,7 +65,7 @@ public class ClienteController implements IController<ClienteDto> {
 
     @Override
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity update(@PathVariable Integer id, @RequestBody ClienteDto clienteDto) {
         ClienteDto cliente = clienteService.update(id, clienteDto);
         if (cliente != null) {
@@ -75,7 +76,7 @@ public class ClienteController implements IController<ClienteDto> {
 
     @Override
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity delete(@PathVariable Integer id) {
         if (clienteService.delete(id)) {
             return ResponseEntity.ok("Se ha eliminado al usuario con id " + id);

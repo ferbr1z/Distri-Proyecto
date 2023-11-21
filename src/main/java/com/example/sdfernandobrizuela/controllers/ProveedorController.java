@@ -24,14 +24,14 @@ public class ProveedorController implements IController<ProveedorDto> {
 
     @Override
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity create(@RequestBody ProveedorDto proveedorDto) {
         return ResponseEntity.ok(proveedorService.create(proveedorDto));
     }
 
     @Override
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity getById(@PathVariable Integer id) {
         ProveedorDto proveedorDto = proveedorService.getById(id);
         if (proveedorDto != null) {
@@ -42,7 +42,7 @@ public class ProveedorController implements IController<ProveedorDto> {
 
     @Override
     @GetMapping("/pages/{page_num}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity<Map<String, Object>> getAll(@PathVariable(value = "page_num") Integer page) {
         Pageable pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
 
@@ -60,7 +60,7 @@ public class ProveedorController implements IController<ProveedorDto> {
 
     @Override
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity update(@PathVariable Integer id, @RequestBody ProveedorDto proveedorDto) {
         ProveedorDto proveedor = proveedorService.update(id, proveedorDto);
         if (proveedor != null) {
@@ -72,7 +72,7 @@ public class ProveedorController implements IController<ProveedorDto> {
 
     @Override
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity delete(@PathVariable Integer id) {
         if (proveedorService.delete(id)) {
             return ResponseEntity.ok("Se ha eliminado al usuario con id " + id);
