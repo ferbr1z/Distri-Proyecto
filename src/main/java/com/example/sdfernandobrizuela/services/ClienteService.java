@@ -50,7 +50,7 @@ public class ClienteService implements IService<ClienteDto> {
 
     @Override
     @Transactional
-    @Cacheable(cacheNames = "sd::clienteItem", key = "#id", unless = "#result==null")
+    @Cacheable(cacheNames = "sd::clienteWithItem", key = "#id", unless = "#result==null")
     public ClienteDto getById(Integer id) {
         Optional<ClienteBean> cliente = clienteRepository.findByIdAndActiveTrue(id);
         if (cliente.isPresent()) {
