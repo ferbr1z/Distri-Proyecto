@@ -45,6 +45,7 @@ public class ClienteService implements IService<ClienteDto> {
     @Transactional
     public ClienteDto create(ClienteDto clienteDto) {
         ClienteBean cliente = clienteMapper.toBean(clienteDto);
+        cliente.setActive(true);
         return clienteMapper.toDto(clienteRepository.save(cliente));
     }
 
@@ -53,6 +54,7 @@ public class ClienteService implements IService<ClienteDto> {
     @Cacheable(cacheNames = "sd::clienteWithItem", key = "#id", unless = "#result==null")
     public ClienteDto getById(Integer id) {
         Optional<ClienteBean> cliente = clienteRepository.findByIdAndActiveTrue(id);
+        System.out.println(cliente);
         if (cliente.isPresent()) {
             ClienteDto clienteDto = clienteMapper.toDto(cliente.get()); // Se obtiene el detalle y se lo asigna al dto
             ClienteWithDetalleDto clienteWithDetalleDto = new ClienteWithDetalleDto();
@@ -73,7 +75,7 @@ public class ClienteService implements IService<ClienteDto> {
     @Override
     @Transactional
     public Page<ClienteDto> getAll(Pageable pag) {
-        Page<ClienteBean> clientesBean = clienteRepository.findAll(pag);
+        Page<ClienteBean> clientesBean = clienteRepository.findAllByActiveTrue(pag);
         Page<ClienteDto> clientesDto = clientesBean.map(clienteMapper::toDto);
 
         // cacheamos
@@ -106,7 +108,7 @@ public class ClienteService implements IService<ClienteDto> {
 
     @Override
     @CacheEvict(cacheNames = "sd::clienteItem", key = "#id")
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional
     public boolean delete(Integer id) {
         if (clienteRepository.findByIdAndActiveTrue(id).isPresent()) {
             ClienteBean clienteBean = clienteRepository.getById(id);

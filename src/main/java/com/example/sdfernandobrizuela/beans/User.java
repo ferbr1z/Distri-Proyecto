@@ -10,29 +10,26 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+
 @Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "Users")
-public class UserBean extends AbstractBean implements UserDetails {
-
-    @Column(nullable = false, unique = true)
+public class User implements UserDetails {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private String name;
+    private String lastName;
     private String email;
-
-    @Column
-    private String username;
-
-    @Column(nullable = false)
     private String password;
-
     @Enumerated(EnumType.STRING)
-    private RoleEnum role;
+    private Role role;
+    private boolean activo;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

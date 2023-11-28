@@ -2,13 +2,15 @@ package com.example.sdfernandobrizuela.abstracts;
 
 import com.example.sdfernandobrizuela.interfaces.IBean;
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @MappedSuperclass
 public abstract class AbstractBean implements IBean {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(columnDefinition = "boolean default true")
+    @Column(columnDefinition = "boolean")
+    @ColumnDefault("true")
     private boolean active;
 
     @Override

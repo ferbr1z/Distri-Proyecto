@@ -2,8 +2,8 @@ package com.example.sdfernandobrizuela.auth;
 
 import com.example.sdfernandobrizuela.auth.jwt.JWTService;
 import com.example.sdfernandobrizuela.auth.requests.AuthRequest;
-import com.example.sdfernandobrizuela.beans.RoleEnum;
-import com.example.sdfernandobrizuela.beans.UserBean;
+import com.example.sdfernandobrizuela.beans.Role;
+import com.example.sdfernandobrizuela.beans.User;
 import com.example.sdfernandobrizuela.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +28,12 @@ public class AuthenticationService {
     Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
     public AuthResponse registrar(RegisterRequest request) {
-        UserBean user = UserBean.builder()
-                .username(request.getUsername())
+        User user = User.builder()
+                .name(request.getName())
+                .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(RoleEnum.USER)
+                .role(Role.USER)
                 .build();
 
         userRepository.save(user);
@@ -50,7 +51,7 @@ public class AuthenticationService {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        Optional<UserBean> user = userRepository.findByEmail(request.getEmail());
+        Optional<User> user = userRepository.findByEmail(request.getEmail());
         String jwt = jwtService.generateToken(user.get());
 
         return AuthResponse.builder()
