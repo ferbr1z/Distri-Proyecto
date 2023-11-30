@@ -40,11 +40,11 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     public ProveedorDetalleDto create(ProveedorDetalleDto proveedorDetalleDto) {
         ProveedorDetalleBean proveedorDetalleBean = new ProveedorDetalleBean();
         ProveedorBean proveedorBean = proveedorRepository.getById(proveedorDetalleDto.getProveedorId());
-
         if (proveedorBean != null) {
             proveedorDetalleBean.setProveedor(proveedorBean);
         }
 
+        proveedorBean.setActive(true);
         proveedorDetalleBean.setDireccion(proveedorDetalleDto.getDireccion());
         proveedorDetalleBean.setEmail(proveedorDetalleDto.getEmail());
         proveedorDetalleBean.setTelefono(proveedorDetalleDto.getTelefono());
@@ -64,7 +64,9 @@ public class ProveedorDetalleService implements IService<ProveedorDetalleDto> {
     @Cacheable(cacheNames = "sd::proveedorDetalleItem", key = "#id", unless = "#result==null")
     public ProveedorDetalleDto getByProveedorId(Integer id) {
         Optional<ProveedorDetalleBean> proveedorDetalleBean = proveedorDetalleRepository.findByIdAndActiveTrue(id);
-        if (proveedorDetalleBean != null) return proveedorDetalleMapper.toDto(proveedorDetalleBean.get());
+        if(proveedorDetalleBean.isPresent()) {
+            return proveedorDetalleMapper.toDto(proveedorDetalleBean.get());
+        }
         return null;
     }
 

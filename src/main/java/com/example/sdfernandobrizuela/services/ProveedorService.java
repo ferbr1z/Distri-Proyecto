@@ -41,6 +41,7 @@ public class ProveedorService implements IService<ProveedorDto> {
     @Transactional
     public ProveedorDto create(ProveedorDto proveedorDto) {
         ProveedorBean proveedor = proveedorMapper.toBean(proveedorDto);
+        proveedor.setActive(true);
         return proveedorMapper.toDto(proveedorRepository.save(proveedor));
     }
 
@@ -65,7 +66,35 @@ public class ProveedorService implements IService<ProveedorDto> {
     @Override
     @Transactional
     public Page<ProveedorDto> getAll(Pageable pag) {
-        Page<ProveedorBean> proveedores = proveedorRepository.findAll(pag);
+        Page<ProveedorBean> proveedores = proveedorRepository.findAllByActiveTrue(pag);
+        Page<ProveedorDto> proveedoresDto = proveedores.map(proveedorMapper::toDto);
+
+        proveedoresDto.forEach(proveedorDto -> {
+                    String cacheKey = "sd::proveedorItem::" + proveedorDto.getId();
+                    cacheManager.getCache("sd").putIfAbsent(cacheKey, proveedorDto);
+                }
+        );
+
+        return proveedoresDto;
+    }
+
+    @Transactional
+    public Page<ProveedorDto> searchByName(String nombre, Pageable pag) {
+        Page<ProveedorBean> proveedores = proveedorRepository.findByNombreIgnoreCaseContaining(nombre, pag);
+        Page<ProveedorDto> proveedoresDto = proveedores.map(proveedorMapper::toDto);
+
+        proveedoresDto.forEach(proveedorDto -> {
+                    String cacheKey = "sd::proveedorItem::" + proveedorDto.getId();
+                    cacheManager.getCache("sd").putIfAbsent(cacheKey, proveedorDto);
+                }
+        );
+
+        return proveedoresDto;
+    }
+
+    @Transactional
+    public Page<ProveedorDto> searchByRuc(String ruc, Pageable pag) {
+        Page<ProveedorBean> proveedores = proveedorRepository.findByRucContaining(ruc, pag);
         Page<ProveedorDto> proveedoresDto = proveedores.map(proveedorMapper::toDto);
 
         proveedoresDto.forEach(proveedorDto -> {

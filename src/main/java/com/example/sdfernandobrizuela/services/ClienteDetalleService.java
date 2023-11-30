@@ -54,7 +54,7 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
         if (clienteBean != null) {
             clienteDetalleBean.setCliente(clienteBean);
         }
-
+        clienteDetalleBean.setActive(true);
         clienteDetalleBean.setDireccion(clienteDetalleDto.getDireccion());
         clienteDetalleBean.setEmail(clienteDetalleDto.getEmail());
         clienteDetalleBean.setTelefono(clienteDetalleDto.getTelefono());
@@ -97,20 +97,38 @@ public class ClienteDetalleService implements IService<ClienteDetalleDto> {
     @Override
     @Transactional
     @CachePut(cacheNames = "sd::clienteDetalleItem", key = "#id")
-    public ClienteDetalleDto update(Integer id, ClienteDetalleDto clienteDetalleWithClienteDto) {
+    public ClienteDetalleDto update(Integer id, ClienteDetalleDto clienteDetalleDto) {
         Optional<ClienteDetalleBean> detalleOp = clienteDetalleRepository.findById(id);
         if (detalleOp.isPresent()) {
-            if (clienteDetalleWithClienteDto.getEmail() != null)
-                detalleOp.get().setEmail(clienteDetalleWithClienteDto.getEmail());
-            if (clienteDetalleWithClienteDto.getTelefono() != null)
-                detalleOp.get().setTelefono(clienteDetalleWithClienteDto.getTelefono());
-            if (clienteDetalleWithClienteDto.getDireccion() != null)
-                detalleOp.get().setDireccion(clienteDetalleWithClienteDto.getDireccion());
+            if (clienteDetalleDto.getEmail() != null)
+                detalleOp.get().setEmail(clienteDetalleDto.getEmail());
+            if (clienteDetalleDto.getTelefono() != null)
+                detalleOp.get().setTelefono(clienteDetalleDto.getTelefono());
+            if (clienteDetalleDto.getDireccion() != null)
+                detalleOp.get().setDireccion(clienteDetalleDto.getDireccion());
             clienteDetalleRepository.save(detalleOp.get());
             return clienteDetalleMapper.toDto(detalleOp.get());
         }
         return null;
     }
+
+    @Transactional
+    @CachePut(cacheNames = "sd::clienteDetalleItem", key = "#id")
+    public ClienteDetalleDto updateByClienteId(Integer id, ClienteDetalleDto clienteDetalleDto) {
+        Optional<ClienteDetalleBean> detalleOp = clienteDetalleRepository.findByClienteId(id);
+        if (detalleOp.isPresent()) {
+            if (clienteDetalleDto.getEmail() != null)
+                detalleOp.get().setEmail(clienteDetalleDto.getEmail());
+            if (clienteDetalleDto.getTelefono() != null)
+                detalleOp.get().setTelefono(clienteDetalleDto.getTelefono());
+            if (clienteDetalleDto.getDireccion() != null)
+                detalleOp.get().setDireccion(clienteDetalleDto.getDireccion());
+            clienteDetalleRepository.save(detalleOp.get());
+            return clienteDetalleMapper.toDto(detalleOp.get());
+        }
+        return null;
+    }
+
 
     @Override
     @Transactional

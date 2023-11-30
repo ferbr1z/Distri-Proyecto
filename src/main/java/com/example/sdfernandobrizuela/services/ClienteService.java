@@ -88,6 +88,32 @@ public class ClienteService implements IService<ClienteDto> {
         return clientesDto;
     }
 
+    public Page<ClienteDto> searchByName(String nombre, Pageable pag) {
+        Page<ClienteBean> clientesBean = clienteRepository.findByNombreIgnoreCaseContaining(nombre, pag);
+        Page<ClienteDto> clientesDto = clientesBean.map(clienteMapper::toDto);
+        // cacheamos
+        clientesDto.forEach(cliente -> {
+                    String cacheKey = "clienteItem::" + cliente.getId();
+                    cacheManager.getCache("sd").putIfAbsent(cacheKey, cliente);
+                }
+        );
+
+        return clientesDto;
+    }
+
+    public Page<ClienteDto> searchByRuc(String ruc, Pageable pag) {
+        Page<ClienteBean> clientesBean = clienteRepository.findByRucContaining(ruc, pag);
+        Page<ClienteDto> clientesDto = clientesBean.map(clienteMapper::toDto);
+        // cacheamos
+        clientesDto.forEach(cliente -> {
+                    String cacheKey = "clienteItem::" + cliente.getId();
+                    cacheManager.getCache("sd").putIfAbsent(cacheKey, cliente);
+                }
+        );
+
+        return clientesDto;
+    }
+
     @Override
     @Transactional
     @CachePut(cacheNames = "sd::clienteItem", key = "#id")

@@ -3,6 +3,7 @@ package com.example.sdfernandobrizuela.controllers;
 import com.example.sdfernandobrizuela.dtos.proveedor.ProveedorDto;
 import com.example.sdfernandobrizuela.interfaces.IController;
 import com.example.sdfernandobrizuela.interfaces.IService;
+import com.example.sdfernandobrizuela.services.ProveedorService;
 import com.example.sdfernandobrizuela.utils.Setting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ import java.util.Map;
 @RequestMapping("/proveedores")
 public class ProveedorController implements IController<ProveedorDto> {
     @Autowired
-    IService<ProveedorDto> proveedorService;
+    ProveedorService proveedorService;
 
     @Override
     @PostMapping
@@ -56,6 +57,38 @@ public class ProveedorController implements IController<ProveedorDto> {
 
         return ResponseEntity.ok(response);
 
+    }
+
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
+    @GetMapping("/nombre/{nombre}/pages/{page_num}")
+    public ResponseEntity<Map<String, Object>>  searchByName(@PathVariable String nombre, @PathVariable(value = "page_num") Integer page) {
+        Pageable pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+
+        Page proveedorDto = proveedorService.searchByName(nombre, pag);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("proveedores", proveedorDto.getContent());
+        response.put("currentPage", proveedorDto.getNumber() + 1);
+        response.put("totalItems", proveedorDto.getTotalElements());
+        response.put("totalPages", proveedorDto.getTotalPages());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
+    @GetMapping("/ruc/{ruc}/pages/{page_num}")
+    public ResponseEntity<Map<String, Object>>  searchByRuc(@PathVariable String ruc, @PathVariable(value = "page_num") Integer page) {
+        Pageable pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+
+        Page proveedorDto = proveedorService.searchByRuc(ruc, pag);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("proveedores", proveedorDto.getContent());
+        response.put("currentPage", proveedorDto.getNumber() + 1);
+        response.put("totalItems", proveedorDto.getTotalElements());
+        response.put("totalPages", proveedorDto.getTotalPages());
+
+        return ResponseEntity.ok(response);
     }
 
     @Override

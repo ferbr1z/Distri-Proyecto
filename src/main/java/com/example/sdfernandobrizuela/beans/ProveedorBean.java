@@ -12,6 +12,6 @@ import lombok.Data;
 public class ProveedorBean extends AbstractBean {
     @Column
     private String nombre;
-    @Column
+    @Column(unique = true)
     private String ruc;
 }

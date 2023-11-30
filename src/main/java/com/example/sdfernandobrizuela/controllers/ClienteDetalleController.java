@@ -3,6 +3,7 @@ package com.example.sdfernandobrizuela.controllers;
 import com.example.sdfernandobrizuela.dtos.cliente.ClienteDetalleDto;
 import com.example.sdfernandobrizuela.interfaces.IController;
 import com.example.sdfernandobrizuela.interfaces.IService;
+import com.example.sdfernandobrizuela.services.ClienteDetalleService;
 import com.example.sdfernandobrizuela.utils.Setting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,7 @@ import java.util.Map;
 public class ClienteDetalleController implements IController<ClienteDetalleDto> {
 
     @Autowired
-    private IService<ClienteDetalleDto> clienteDetalleService;
+    private ClienteDetalleService clienteDetalleService;
 
     @Override
     @PostMapping
@@ -60,8 +61,17 @@ public class ClienteDetalleController implements IController<ClienteDetalleDto> 
     @Override
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity update(@PathVariable Integer id, @RequestBody ClienteDetalleDto clienteDetalleWithClienteDto) {
-        ClienteDetalleDto detalleDto = clienteDetalleService.update(id, clienteDetalleWithClienteDto);
+    public ResponseEntity update(@PathVariable Integer id, @RequestBody ClienteDetalleDto clienteDetalleDto) {
+        ClienteDetalleDto detalleDto = clienteDetalleService.update(id, clienteDetalleDto);
+        if (detalleDto != null) {
+            return ResponseEntity.ok(detalleDto);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado el cliente detalle con id " + id);
+    }
+
+    @PutMapping("/cliente/{id}")
+    public ResponseEntity updateByClienteId(@PathVariable Integer id, @RequestBody ClienteDetalleDto clienteDetalleDto) {
+        ClienteDetalleDto detalleDto = clienteDetalleService.updateByClienteId(id, clienteDetalleDto);
         if (detalleDto != null) {
             return ResponseEntity.ok(detalleDto);
         }
